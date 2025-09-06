@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import custom theme variables */
+@import '../styles/theme.css';
+
 @layer base {
   :root {
     --radius: 0.5rem;

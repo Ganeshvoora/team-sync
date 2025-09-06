@@ -12,25 +12,27 @@ import TaskComments from "./TaskComments"
 import TaskActivity from "./TaskActivity"
 import TaskStats from "./TaskStats"
 import BulkOperations from "./BulkOperations"
+import { useTheme } from '@/contexts/ThemeContext'
+import ThemeToggle from './ThemeToggle'
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'COMPLETED': return 'bg-green-500/20 text-green-300 border-green-500/30'
-    case 'IN_PROGRESS': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'
-    case 'NOT_STARTED': return 'bg-blue-500/20 text-blue-300 border-blue-500/30'
-    case 'ON_HOLD': return 'bg-red-500/20 text-red-300 border-red-500/30'
-    case 'CANCELLED': return 'bg-gray-500/20 text-gray-300 border-gray-500/30'
-    default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30'
+    case 'COMPLETED': return 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+    case 'IN_PROGRESS': return 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
+    case 'NOT_STARTED': return 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800'
+    case 'ON_HOLD': return 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800'
+    case 'CANCELLED': return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600'
+    default: return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600'
   }
 }
 
 const getPriorityColor = (priority: string) => {
   switch (priority) {
-    case 'URGENT': return 'bg-red-500/20 text-red-300 border-red-500/30'
-    case 'HIGH': return 'bg-orange-500/20 text-orange-300 border-orange-500/30'
-    case 'MEDIUM': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'
-    case 'LOW': return 'bg-green-500/20 text-green-300 border-green-500/30'
-    default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30'
+    case 'URGENT': return 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800'
+    case 'HIGH': return 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800'
+    case 'MEDIUM': return 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800'
+    case 'LOW': return 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+    default: return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600'
   }
 }
 
@@ -80,20 +82,51 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
     }
   }
 
+  // Get list of direct report IDs
+  const directReportIds = teamMembers
+    .filter(member => member.managerId === currentUser.id)
+    .map(member => member.id);
+    
   // Filter tasks based on current filters
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          task.description?.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = filterStatus === 'ALL' || task.status === filterStatus
     const matchesPriority = filterPriority === 'ALL' || task.priority === filterPriority
-    const matchesAssignee = filterAssignee === 'ALL' || 
-                           (filterAssignee === 'ME' && task.assigneeId === currentUser.id) ||
-                           (filterAssignee === 'OTHERS' && task.assigneeId !== currentUser.id)
+    
+    // Enhanced assignee filtering
+    let matchesAssignee = false;
+    if (filterAssignee === 'ALL') {
+      matchesAssignee = true;
+    } else if (filterAssignee === 'ME') {
+      matchesAssignee = task.assigneeId === currentUser.id;
+    } else if (filterAssignee === 'DIRECT_REPORTS') {
+      matchesAssignee = directReportIds.includes(task.assigneeId);
+    } else if (filterAssignee === 'OTHERS') {
+      matchesAssignee = task.assigneeId !== currentUser.id && !directReportIds.includes(task.assigneeId);
+    }
     
     return matchesSearch && matchesStatus && matchesPriority && matchesAssignee
   })
 
   const updateTaskStatus = async (taskId: string, newStatus: string) => {
+    // Check if the selected task is overdue
+    const taskToUpdate = tasks.find(task => task.id === taskId);
+    if (taskToUpdate && taskToUpdate.dueDate) {
+      const dueDate = new Date(taskToUpdate.dueDate);
+      const today = new Date();
+      
+      // Set both dates to midnight for accurate day comparison
+      dueDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+      
+      if (dueDate < today) {
+        // Task is overdue
+        alert("This task is overdue. Status updates are not allowed, but you can still add comments.");
+        return;
+      }
+    }
+    
     try {
       const response = await fetch('/api/tasks/update', {
         method: 'PATCH',
@@ -117,9 +150,13 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
         if (selectedTask && selectedTask.id === taskId) {
           setSelectedTask({ ...selectedTask, status: newStatus });
         }
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Failed to update task status");
       }
     } catch (error) {
       console.error('Error updating task:', error)
+      alert("An error occurred while updating the task status");
     }
   }
 
@@ -154,27 +191,26 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-green-900 to-slate-900">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDMpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20"></div>
-      
-      <div className="relative p-6">
+  <div className="min-h-screen bg-[#f8fafc] dark:bg-gray-900 transition-colors duration-200">
+      <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Task Management</h1>
-            <p className="text-green-200">Organize, track, and complete your work efficiently</p>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Task Management</h1>
+            <p className="text-gray-700 dark:text-gray-300">Organize, track, and complete your work efficiently</p>
           </div>
           
-          <div className="flex space-x-3">
-            <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+          <div className="flex items-center space-x-3">
+            <ThemeToggle />
+            <Button variant="outline" className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
-              Filter
+              <span className="text-gray-800 dark:text-gray-200">Filter</span>
             </Button>
             
             <Button 
               variant="outline" 
-              className={`border-white/20 text-white hover:bg-white/10 ${bulkMode ? 'bg-white/20' : ''}`}
+              className={`border-gray-400 dark:border-gray-400 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 ${bulkMode ? 'bg-gray-200 dark:bg-gray-700' : ''}`}
               onClick={() => {
                 setBulkMode(!bulkMode)
                 if (bulkMode) {
@@ -191,7 +227,7 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
             {canCreateTasks && (
               <>
                 <Button 
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                    className="bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white dark:text-white"
                   onClick={handleQuickSelfAssign}
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,13 +237,15 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
                 </Button>
                 
                 <Button 
-                  className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white"
+                    className="bg-emerald-600 dark:bg-emerald-500 hover:bg-emerald-700 dark:hover:bg-emerald-600 text-white dark:text-white"
                   onClick={() => setShowCreateForm(true)}
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  Assign to Team
+                  {teamMembers.filter(member => member.id !== currentUser.id).length > 0 
+                    ? 'Assign to Team' 
+                    : 'Create New Task'}
                 </Button>
               </>
             )}
@@ -220,23 +258,24 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
             placeholder="Search tasks..."
             value={searchQuery}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder-green-300"
+            className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-green-300"
           />
           
           <Select value={filterAssignee} onValueChange={setFilterAssignee}>
-            <SelectTrigger className="bg-white/10 border-white/20 text-white">
-              <SelectValue placeholder="Filter by assignee" />
+            <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white">
+              <SelectValue placeholder="Filter by assignee" className="text-gray-800 dark:text-gray-200" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">All Tasks</SelectItem>
               <SelectItem value="ME">My Tasks</SelectItem>
-              <SelectItem value="OTHERS">Team Tasks</SelectItem>
+              <SelectItem value="DIRECT_REPORTS">My Direct Reports</SelectItem>
+              <SelectItem value="OTHERS">Other Team Tasks</SelectItem>
             </SelectContent>
           </Select>
           
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="bg-white/10 border-white/20 text-white">
-              <SelectValue placeholder="Filter by status" />
+            <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white">
+              <SelectValue placeholder="Filter by status" className="text-gray-800 dark:text-gray-200" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">All Status</SelectItem>
@@ -249,8 +288,8 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
           </Select>
 
           <Select value={filterPriority} onValueChange={setFilterPriority}>
-            <SelectTrigger className="bg-white/10 border-white/20 text-white">
-              <SelectValue placeholder="Filter by priority" />
+            <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white">
+              <SelectValue placeholder="Filter by priority" className="text-gray-800 dark:text-gray-200" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">All Priority</SelectItem>
@@ -262,7 +301,7 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
           </Select>
 
           <div className="text-white/80 flex items-center">
-            <span className="text-sm">
+            <span className="text-sm text-gray-700 dark:text-green-200">
               Showing {filteredTasks.length} of {tasks.length} tasks
             </span>
           </div>
@@ -286,10 +325,10 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Tasks List */}
           <div className="lg:col-span-1">
-            <Card className="bg-white/10 backdrop-blur-xl border-white/20 h-[calc(100vh-200px)]">
+            <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-xl transition-colors duration-200 h-[calc(100vh-200px)]">
               <CardHeader>
-                <CardTitle className="text-white text-lg">Tasks</CardTitle>
-                <CardDescription className="text-green-200">
+                <CardTitle className="text-gray-900 dark:text-white text-lg">Tasks</CardTitle>
+                <CardDescription className="text-gray-700 dark:text-gray-400">
                   {filteredTasks.length} tasks found
                 </CardDescription>
               </CardHeader>
@@ -297,12 +336,12 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
                 {filteredTasks.map((task) => (
                   <div
                     key={task.id}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 hover:bg-white/5 ${
+                    className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 ${
                       selectedTask?.id === task.id
-                        ? 'bg-white/10 border-green-500/50'
+                        ? 'bg-green-50 dark:bg-green-900/20 border-green-500 dark:border-green-400'
                         : selectedTasks.includes(task.id)
-                        ? 'bg-blue-500/20 border-blue-500/50'
-                        : 'bg-white/5 border-white/10'
+                        ? 'bg-blue-100 border-blue-500/50 dark:bg-blue-900/20'
+                        : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                     }`}
                   >
                     <div className="flex items-start justify-between mb-2">
@@ -315,14 +354,14 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
                               e.stopPropagation()
                               handleTaskSelect(task.id)
                             }}
-                            className="mt-1 w-4 h-4 text-green-600 bg-white/10 border-white/20 rounded focus:ring-green-500"
+                            className="mt-1 w-4 h-4 text-green-600 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded focus:ring-green-500"
                           />
                         )}
                         <div 
                           className="flex-1"
                           onClick={() => !bulkMode && setSelectedTask(task)}
                         >
-                          <h3 className="font-medium text-white text-sm">{task.title}</h3>
+                          <h3 className="font-semibold text-gray-900 dark:text-white text-sm">{task.title}</h3>
                         </div>
                       </div>
                       <Badge className={`text-xs ${getStatusColor(task.status)}`}>
@@ -330,8 +369,8 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
                       </Badge>
                     </div>
                     
-                    <p className="text-green-200 text-xs mb-3 line-clamp-2">
-                      {task.description || 'No description provided'}
+                    <p className="text-gray-600 dark:text-green-200 text-xs mb-3 line-clamp-2">
+                      <span className="text-gray-700 dark:text-green-200">{task.description || 'No description provided'}</span>
                     </p>
                     
                     <div 
@@ -342,18 +381,27 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
                         {task.priority || 'Medium'}
                       </Badge>
                       
-                      <span className="text-green-300 text-xs">
-                        {task.assignee?.name || 'Unassigned'}
-                        {task.assigneeId === currentUser.id && ' (Me)'}
+                      <span className="text-gray-600 dark:text-green-300 text-xs">
+                        <span className="text-gray-800 dark:text-green-300">{task.assignee?.name || 'Unassigned'}{task.assigneeId === currentUser.id && ' (Me)'}</span>
                       </span>
                     </div>
 
                     {task.dueDate && (
                       <div 
-                        className="mt-2 text-xs text-green-300"
+                        className={`mt-2 text-xs ${
+                          new Date(task.dueDate) < new Date() 
+                            ? "text-red-500 font-semibold flex items-center"
+                            : "text-green-700 dark:text-green-300"
+                        }`}
                         onClick={() => !bulkMode && setSelectedTask(task)}
                       >
-                        Due: {new Date(task.dueDate).toLocaleDateString()}
+                        {new Date(task.dueDate) < new Date() && (
+                          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        )}
+                        Due: {new Date(task.dueDate).toLocaleDateString()} 
+                        {new Date(task.dueDate) < new Date() && " (Overdue)"}
                       </div>
                     )}
                   </div>
@@ -364,7 +412,7 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
                     <svg className="w-16 h-16 mx-auto mb-4 text-green-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                    <p>No tasks found</p>
+                    <p className="text-gray-700 dark:text-green-300">No tasks found</p>
                   </div>
                 )}
               </CardContent>
@@ -374,12 +422,12 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
           {/* Task Details */}
           <div className="lg:col-span-2">
             {selectedTask ? (
-              <Card className="bg-white/10 backdrop-blur-xl border-white/20 h-[calc(100vh-200px)]">
+              <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-xl transition-colors duration-200 h-[calc(100vh-200px)]">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-white text-xl">{selectedTask.title}</CardTitle>
-                      <CardDescription className="text-green-200 mt-1">
+                      <CardTitle className="text-gray-900 dark:text-white text-xl font-bold">{selectedTask.title}</CardTitle>
+                      <CardDescription className="text-gray-700 dark:text-gray-400 mt-1">
                         Task Details and Management
                       </CardDescription>
                     </div>
@@ -397,64 +445,86 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
                 
                 <CardContent className="overflow-y-auto max-h-[calc(100vh-300px)]">
                   <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-                    <TabsList className="bg-white/10 border-white/20">
-                      <TabsTrigger value="details" className="data-[state=active]:bg-white/20">Details</TabsTrigger>
-                      <TabsTrigger value="comments" className="data-[state=active]:bg-white/20">Comments</TabsTrigger>
-                      <TabsTrigger value="activity" className="data-[state=active]:bg-white/20">Activity</TabsTrigger>
+                    <TabsList className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                      <TabsTrigger value="details" className="data-[state=active]:bg-gray-200 dark:bg-gray-700">Details</TabsTrigger>
+                      <TabsTrigger value="comments" className="data-[state=active]:bg-gray-200 dark:bg-gray-700">Comments</TabsTrigger>
+                      <TabsTrigger value="activity" className="data-[state=active]:bg-gray-200 dark:bg-gray-700">Activity</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="details" className="space-y-6">
                       <div>
-                        <label className="text-green-200 text-sm font-medium">Description</label>
-                        <p className="text-white mt-1">
-                          {selectedTask.description || 'No description provided'}
+                        <label className="text-gray-700 dark:text-green-200 text-sm font-semibold">Description</label>
+                        <p className="text-gray-900 dark:text-white mt-1">
+                          <span className="text-gray-800 dark:text-white">{selectedTask.description || 'No description provided'}</span>
                         </p>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-4">
                           <div>
-                            <label className="text-green-200 text-sm">Assigned To</label>
-                            <div className="text-white font-medium">{selectedTask.assignee?.name || 'Unassigned'}</div>
+                            <label className="text-gray-700 dark:text-green-200 text-sm font-semibold">Assigned To</label>
+                            <div className="text-gray-800 dark:text-white font-semibold">{selectedTask.assignee?.name || 'Unassigned'}</div>
                           </div>
                           <div>
-                            <label className="text-green-200 text-sm">Assigned By</label>
-                            <div className="text-white font-medium">{selectedTask.assigner?.name || 'Unknown'}</div>
+                            <label className="text-gray-700 dark:text-green-200 text-sm font-semibold">Assigned By</label>
+                            <div className="text-gray-800 dark:text-white font-semibold">{selectedTask.assigner?.name || 'Unknown'}</div>
                           </div>
                           {selectedTask.dueDate && (
                             <div>
-                              <label className="text-green-200 text-sm">Due Date</label>
-                              <div className="text-white font-medium">{new Date(selectedTask.dueDate).toLocaleDateString()}</div>
+                              <label className="text-gray-700 dark:text-green-200 text-sm font-semibold">Due Date</label>
+                              <div className="text-gray-800 dark:text-white font-semibold">{new Date(selectedTask.dueDate).toLocaleDateString()}</div>
                             </div>
                           )}
                         </div>
                         
                         <div className="space-y-4">
                           <div>
-                            <label className="text-green-200 text-sm">Status</label>
-                            <Select 
-                              value={selectedTask.status} 
-                              onValueChange={(value: string) => updateTaskStatus(selectedTask.id, value)}
-                            >
-                              <SelectTrigger className="bg-white/10 border-white/20 text-white mt-1">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="NOT_STARTED">Not Started</SelectItem>
-                                <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                                <SelectItem value="COMPLETED">Completed</SelectItem>
-                                <SelectItem value="ON_HOLD">On Hold</SelectItem>
-                                <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <label className="text-gray-700 dark:text-green-200 text-sm font-semibold">Status</label>
+                            {selectedTask.dueDate && new Date(selectedTask.dueDate) < new Date() ? (
+                              <div>
+                                <Select 
+                                  value={selectedTask.status} 
+                                  disabled={true}
+                                >
+                                  <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-white mt-1 cursor-not-allowed opacity-60">
+                                    <SelectValue className="text-gray-800 dark:text-white" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value={selectedTask.status}>{selectedTask.status.replace('_', ' ')}</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <div className="text-red-400 text-xs mt-1 flex items-center">
+                                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  <span className="text-red-500 font-semibold">Overdue tasks cannot be updated</span>
+                                </div>
+                              </div>
+                            ) : (
+                              <Select 
+                                value={selectedTask.status} 
+                                onValueChange={(value: string) => updateTaskStatus(selectedTask.id, value)}
+                              >
+                                <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white mt-1">
+                                  <SelectValue className="text-gray-800 dark:text-white" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="NOT_STARTED">Not Started</SelectItem>
+                                  <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                                  <SelectItem value="COMPLETED">Completed</SelectItem>
+                                  <SelectItem value="ON_HOLD">On Hold</SelectItem>
+                                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            )}
                           </div>
                           <div>
-                            <label className="text-green-200 text-sm">Created</label>
-                            <div className="text-white font-medium">{new Date(selectedTask.createdAt).toLocaleDateString()}</div>
+                            <label className="text-gray-700 dark:text-green-200 text-sm font-semibold">Created</label>
+                            <div className="text-gray-800 dark:text-white font-semibold">{new Date(selectedTask.createdAt).toLocaleDateString()}</div>
                           </div>
                           <div>
-                            <label className="text-green-200 text-sm">Last Updated</label>
-                            <div className="text-white font-medium">{new Date(selectedTask.updatedAt).toLocaleDateString()}</div>
+                            <label className="text-gray-700 dark:text-green-200 text-sm font-semibold">Last Updated</label>
+                            <div className="text-gray-800 dark:text-white font-semibold">{new Date(selectedTask.updatedAt).toLocaleDateString()}</div>
                           </div>
                         </div>
                       </div>
@@ -471,14 +541,14 @@ export default function TasksClient({ currentUser, tasks: initialTasks, canCreat
                 </CardContent>
               </Card>
             ) : (
-              <Card className="bg-white/10 backdrop-blur-xl border-white/20 h-[calc(100vh-200px)]">
+              <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-200 h-[calc(100vh-200px)]">
                 <CardContent className="flex items-center justify-center h-full">
-                  <div className="text-center text-green-300">
-                    <svg className="w-20 h-20 mx-auto mb-4 text-green-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="text-center text-gray-700 dark:text-gray-400">
+                    <svg className="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                    <h3 className="text-lg font-medium mb-2">Select a Task</h3>
-                    <p>Choose a task from the list to view its details</p>
+                    <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-white">Select a Task</h3>
+                    <p className="text-gray-700 dark:text-gray-400">Choose a task from the list to view its details</p>
                   </div>
                 </CardContent>
               </Card>

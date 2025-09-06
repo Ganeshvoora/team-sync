@@ -157,7 +157,7 @@ export default function TaskComments({ taskId }: TaskCommentsProps) {
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             {isSubmitting ? 'Posting...' : 'Post Comment'}
-          </Button>
+          </Button>in all tasks components changing the bg coclor to white in likht theme is not enough colors need to  visible clearly in the light thheme easily viewabale
         </div>
       </form>
 
@@ -174,21 +174,21 @@ export default function TaskComments({ taskId }: TaskCommentsProps) {
           </div>
         ) : (
           comments.map((comment) => (
-            <div key={comment.id} className="bg-white/5 border-white/10 rounded-lg p-4 border">
+            <div key={comment.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
+                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
                   {getUserInitials(comment.user.name)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-medium text-white text-sm">
+                    <span className="font-medium text-gray-900 dark:text-white text-sm">
                       {comment.user.name}
                     </span>
-                    <span className="text-green-400 text-xs">
+                    <span className="text-gray-600 dark:text-green-400 text-xs">
                       {formatDate(comment.createdAt)}
                     </span>
                   </div>
-                  <p className="text-green-100 text-sm whitespace-pre-wrap leading-relaxed">
+                  <p className="text-gray-900 dark:text-green-600 text-sm whitespace-pre-wrap leading-relaxed">
                     {comment.content}
                   </p>
                 </div>

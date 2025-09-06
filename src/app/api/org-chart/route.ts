@@ -39,8 +39,10 @@ export async function GET(request: NextRequest) {
     const getVisibleUsers = async (userId: string, userRole: any) => {
       const visibleUserIds = new Set<string>()
       
-      // If user is Admin or CEO, they can see everyone
-      if (userRole?.name === 'Admin' || userRole?.name === 'CEO') {
+      // If user is Admin or CEO, they can see everyone in the organization
+      // This is the key part for admin/CEO role-based access control
+      if (userRole?.name === 'ADMIN' || userRole?.name === 'CEO') {
+        console.log('Admin/CEO detected - returning all active users')
         const allUsers = await prisma.user.findMany({
           where: { status: 'ACTIVE' },
           select: { id: true }
@@ -139,6 +141,11 @@ export async function GET(request: NextRequest) {
 
     // Helper function to check if a user is in the downstream hierarchy
     async function isUserInDownstreamHierarchy(managerId: string, targetUserId: string): Promise<boolean> {
+      // If the manager ID matches the target user ID, return false (a user is not in their own hierarchy)
+      if (managerId === targetUserId) {
+        return false
+      }
+      
       const directReports = await prisma.user.findMany({
         where: { managerId },
         select: { id: true }
@@ -159,8 +166,22 @@ export async function GET(request: NextRequest) {
 
     // Check downstream relationships for each user
     const downstreamMap: Record<string, boolean> = {}
-    for (const user of users) {
-      downstreamMap[user.id] = await isUserInDownstreamHierarchy(currentUser.id, user.id)
+    const isAdminOrCEO = currentUser.role?.name === 'ADMIN' || currentUser.role?.name === 'CEO'
+    
+    // If admin/CEO, all users are considered in their downstream for management purposes
+    // This allows admins to "manage" everyone in the organization chart, even without direct reports
+    if (isAdminOrCEO) {
+      console.log('Admin/CEO access - setting all users as manageable')
+      for (const user of users) {
+        // An admin/CEO can manage everyone except themselves
+        downstreamMap[user.id] = user.id !== currentUser.id
+      }
+    } else {
+      // For regular managers, calculate actual downstream hierarchy
+      console.log('Regular user - calculating hierarchy for', currentUser.name)
+      for (const user of users) {
+        downstreamMap[user.id] = await isUserInDownstreamHierarchy(currentUser.id, user.id)
+      }
     }
 
     // Transform users into org chart nodes and edges
@@ -208,7 +229,8 @@ export async function GET(request: NextRequest) {
           level: user.role?.level || 0,
           managerId: user.managerId,
           isCurrentUser: user.id === currentUser.id,
-          canManage: user.managerId === currentUser.id || downstreamMap[user.id]
+          canManage: downstreamMap[user.id], // We've already calculated this in the downstream map
+          isAdmin: currentUser.role?.name === 'ADMIN' || currentUser.role?.name === 'CEO' // Pass admin status to frontend
         }
       }
     })
@@ -236,14 +258,35 @@ export async function GET(request: NextRequest) {
     console.log(`Generated ${edges.length} edges for ${users.length} users`)
     console.log('Sample edges:', edges.slice(0, 3))
 
+    // Get all active users to provide better stats for admins/CEOs
+    let totalActiveUsers = users.length;
+    let totalDepartments = [...new Set(users.map(u => u.department?.name).filter(Boolean))].length;
+    let totalManagers = users.filter(u => (u.role?.level || 0) >= 50).length;
+    
+    // If admin/CEO, get comprehensive stats from entire organization
+    if (isAdminOrCEO) {
+      const allActiveUsersCount = await prisma.user.count({
+        where: { status: 'ACTIVE' }
+      });
+      
+      const allDepartments = await prisma.department.count();
+      
+      totalActiveUsers = allActiveUsersCount;
+      totalDepartments = allDepartments;
+      
+      console.log('Admin stats:', { totalActiveUsers, totalDepartments });
+    }
+    
     return NextResponse.json({
       nodes,
       edges,
       stats: {
-        totalUsers: users.length,
-        departments: [...new Set(users.map(u => u.department?.name).filter(Boolean))].length,
-        managers: users.filter(u => (u.role?.level || 0) >= 50).length,
-        directReports: users.filter(u => u.directReports.length > 0).length
+        totalUsers: totalActiveUsers,
+        departments: totalDepartments,
+        managers: totalManagers,
+        directReports: users.filter(u => u.directReports.length > 0).length,
+        adminView: isAdminOrCEO,
+        userRole: currentUser.role?.name || 'Employee'
       }
     })
 

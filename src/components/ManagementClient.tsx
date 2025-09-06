@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import ThemeToggle from './ThemeToggle'
 
 interface User {
   id: string
@@ -114,29 +115,30 @@ export default function ManagementClient({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="px-4 py-6 sm:px-0">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl shadow-lg">
+            <div className="flex items-center justify-center w-12 h-12 bg-indigo-600 rounded-xl shadow-lg">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                 Team Management
               </h1>
               <p className="text-gray-600 mt-1">Manage your team members and invite new colleagues</p>
             </div>
+            <ThemeToggle />
           </div>
         </div>
 
         {/* Main Content */}
         <div className="px-4 py-6 sm:px-0">
           <Tabs defaultValue="team" className="space-y-6">
-            <TabsList className="bg-white/50 backdrop-blur-sm border border-white/20">
+            <TabsList className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <TabsTrigger value="team">My Team ({directReports.length})</TabsTrigger>
               <TabsTrigger value="invite">Invite Team Member</TabsTrigger>
               <TabsTrigger value="pending">Pending Invitations ({pendingInvitations.length})</TabsTrigger>
@@ -144,7 +146,7 @@ export default function ManagementClient({
 
             {/* Team Overview Tab */}
             <TabsContent value="team" className="space-y-6">
-              <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-white/20">
+              <Card className="bg-white dark:bg-gray-800 shadow-sm border-gray-200 dark:border-gray-700">
                 <CardHeader>
                   <CardTitle className="text-xl font-semibold text-gray-900">Direct Reports</CardTitle>
                   <CardDescription>Team members who report directly to you</CardDescription>
@@ -153,10 +155,10 @@ export default function ManagementClient({
                   {directReports.length > 0 ? (
                     <div className="grid gap-4">
                       {directReports.map((report) => (
-                        <div key={report.id} className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                        <div key={report.id} className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                              <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center">
                                 <span className="text-white font-medium text-sm">
                                   {report.name.split(' ').map(n => n[0]).join('')}
                                 </span>
@@ -193,7 +195,7 @@ export default function ManagementClient({
 
             {/* Invite Tab */}
             <TabsContent value="invite" className="space-y-6">
-              <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-white/20">
+              <Card className="bg-white dark:bg-gray-800 shadow-sm border-gray-200 dark:border-gray-700">
                 <CardHeader>
                   <CardTitle className="text-xl font-semibold text-gray-900">Invite Team Member</CardTitle>
                   <CardDescription>Send an invitation to a new team member to join your organization</CardDescription>
@@ -214,14 +216,14 @@ export default function ManagementClient({
                           placeholder="colleague@company.com"
                           value={inviteEmail}
                           onChange={(e) => setInviteEmail(e.target.value)}
-                          className="bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                          className="bg-white dark:bg-gray-700 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                           required
                         />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="role" className="text-sm font-medium text-gray-700">Role</Label>
                         <Select value={selectedRole} onValueChange={setSelectedRole}>
-                          <SelectTrigger className="bg-white/50 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                          <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                             <SelectValue placeholder="Select a role" />
                           </SelectTrigger>
                           <SelectContent>
@@ -254,7 +256,7 @@ export default function ManagementClient({
                     <Button 
                       type="submit" 
                       disabled={isInviting}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
                     >
                       {isInviting ? 'Sending Invitation...' : 'Send Invitation'}
                     </Button>
@@ -265,7 +267,7 @@ export default function ManagementClient({
 
             {/* Pending Invitations Tab */}
             <TabsContent value="pending" className="space-y-6">
-              <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-white/20">
+              <Card className="bg-white dark:bg-gray-800 shadow-sm border-gray-200 dark:border-gray-700">
                 <CardHeader>
                   <CardTitle className="text-xl font-semibold text-gray-900">Pending Invitations</CardTitle>
                   <CardDescription>Invitations you have sent that are waiting for acceptance</CardDescription>
@@ -274,7 +276,7 @@ export default function ManagementClient({
                   {pendingInvitations.length > 0 ? (
                     <div className="space-y-4">
                       {pendingInvitations.map((invitation) => (
-                        <div key={invitation.id} className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-4">
+                        <div key={invitation.id} className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
                           <div className="flex items-center justify-between">
                             <div className="space-y-1">
                               <p className="font-medium text-gray-900">{invitation.email}</p>

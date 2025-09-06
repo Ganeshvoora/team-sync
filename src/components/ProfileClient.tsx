@@ -196,7 +196,7 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+  <div className="min-h-screen bg-white dark:bg-gray-900">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="px-4 py-6 sm:px-0">
@@ -207,15 +207,15 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
               </span>
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r dark:text-white from-gray-900 to-gray-700 bg-clip-text text-transparent">
                 {currentUser.name}
               </h1>
               <div className="flex items-center space-x-2 mt-1">
-                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                   {currentUser.role?.name || 'No Role'}
                 </Badge>
                 {currentUser.department && (
-                  <Badge variant="outline" className="border-purple-200 text-purple-700">
+                  <Badge variant="outline" className="border-purple-200 text-purple-700 dark:border-purple-700 dark:text-purple-200">
                     {currentUser.department.name}
                   </Badge>
                 )}
@@ -227,7 +227,7 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
         {/* Main Content */}
         <div className="px-4 py-6 sm:px-0">
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="bg-white/50 backdrop-blur-sm border border-white/20">
+            <TabsList className="bg-white/5 backdrop-blur-sm border border-white/20">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="tasks">Tasks ({currentUser.tasksAssignedToMe.length})</TabsTrigger>
               {currentUser.directReports.length > 0 && (
@@ -241,10 +241,10 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
                 {/* Personal Information */}
-                <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-white/20">
+                <Card className="bg-white/10 backdrop-blur-sm shadow-xl border-white/20">
                   <CardHeader className="flex flex-row items-center justify-between">
                     <div>
-                      <CardTitle className="text-xl font-semibold text-gray-900">Personal Information</CardTitle>
+                      <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white">Personal Information</CardTitle>
                       <CardDescription>Your basic profile information</CardDescription>
                     </div>
                     <Button
@@ -257,19 +257,18 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 gap-4">
-                      <div className="bg-gray-50 p-3 rounded-lg">
-                        <Label className="text-sm text-gray-600">Email</Label>
-                        <p className="font-medium text-gray-900">{currentUser.email}</p>
-                        <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                      <div className="bg-gray-50 dark:bg-white/5 p-3 rounded-lg">
+                        <Label className="text-sm text-gray-600 dark:text-gray-200">Email</Label>
+                        <p className="font-medium text-gray-900 dark:text-white">{currentUser.email}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Email cannot be changed</p>
                       </div>
-                      <div className="bg-gray-50 p-3 rounded-lg">
-                        <Label className="text-sm text-gray-600">Employee ID</Label>
-                        <p className="font-medium text-gray-900">{currentUser.employeeId || 'Not set'}</p>
+                      <div className="bg-gray-50 dark:bg-white/5 p-3 rounded-lg">
+                        <Label className="text-sm text-gray-600 dark:text-gray-200">Employee ID</Label>
+                        <p className="font-medium text-gray-900 dark:text-white">{currentUser.employeeId || 'Not set'}</p>
                       </div>
-                      
                       {/* Editable Name */}
-                      <div className="bg-gray-50 p-3 rounded-lg">
-                        <Label className="text-sm text-gray-600">Full Name</Label>
+                      <div className="bg-gray-50 dark:bg-white/5 p-3 rounded-lg">
+                        <Label className="text-sm text-gray-600 dark:text-gray-200">Full Name</Label>
                         {isEditMode ? (
                           <Input
                             value={editData.name}
@@ -277,13 +276,12 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
                             className="mt-1"
                           />
                         ) : (
-                          <p className="font-medium text-gray-900">{currentUser.name}</p>
+                          <p className="font-medium text-gray-900 dark:text-white">{currentUser.name}</p>
                         )}
                       </div>
-                      
                       {/* Editable Contact Number */}
-                      <div className="bg-gray-50 p-3 rounded-lg">
-                        <Label className="text-sm text-gray-600">Contact Number</Label>
+                      <div className="bg-gray-50 dark:bg-white/5 p-3 rounded-lg">
+                        <Label className="text-sm text-gray-600 dark:text-gray-200">Contact Number</Label>
                         {isEditMode ? (
                           <Input
                             value={editData.contactNumber}
@@ -292,13 +290,12 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
                             placeholder="Enter your contact number"
                           />
                         ) : (
-                          <p className="font-medium text-gray-900">{currentUser.contactNumber || 'Not set'}</p>
+                          <p className="font-medium text-gray-900 dark:text-white">{currentUser.contactNumber || 'Not set'}</p>
                         )}
                       </div>
-                      
                       {/* Editable Location */}
-                      <div className="bg-gray-50 p-3 rounded-lg">
-                        <Label className="text-sm text-gray-600">Location</Label>
+                      <div className="bg-gray-50 dark:bg-white/5 p-3 rounded-lg">
+                        <Label className="text-sm text-gray-600 dark:text-gray-200">Location</Label>
                         {isEditMode ? (
                           <Input
                             value={editData.location}
@@ -307,14 +304,13 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
                             placeholder="Enter your location"
                           />
                         ) : (
-                          <p className="font-medium text-gray-900">{currentUser.location || 'Not set'}</p>
+                          <p className="font-medium text-gray-900 dark:text-white">{currentUser.location || 'Not set'}</p>
                         )}
                       </div>
-                      
                       {currentUser.hireDate && (
-                        <div className="bg-gray-50 p-3 rounded-lg">
-                          <Label className="text-sm text-gray-600">Hire Date</Label>
-                          <p className="font-medium text-gray-900">
+                        <div className="bg-gray-50 dark:bg-white/5 p-3 rounded-lg">
+                          <Label className="text-sm text-gray-600 dark:text-gray-200">Hire Date</Label>
+                          <p className="font-medium text-gray-900 dark:text-white">
                             {new Date(currentUser.hireDate).toLocaleDateString()}
                           </p>
                         </div>
@@ -342,11 +338,11 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
                 </Card>
 
                 {/* Organization Details */}
-                <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-white/20">
-                  <CardHeader className="flex flex-row items-center justify-between">
+                <Card className="bg-white/10 shadow-xl border-gray-200">
+                  <CardHeader className="flex flex-row items-center justify-between dark:text-white rounded-t-lg">
                     <div>
-                      <CardTitle className="text-xl font-semibold text-gray-900">Organization Details</CardTitle>
-                      <CardDescription>Your role and position in the company</CardDescription>
+                      <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white">Organization Details</CardTitle>
+                      <CardDescription className="dark:text-gray-200">Your role and position in the company</CardDescription>
                     </div>
                     {isAdmin && (
                       <Button
@@ -358,17 +354,17 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
                       </Button>
                     )}
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-4  dark:text-white rounded-b-lg">
                     <div className="grid grid-cols-1 gap-4">
                       {/* Role */}
-                      <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                        <Label className="text-sm text-blue-600">Role</Label>
+                      <div className="bg-blue-50 dark:bg-blue-900/40 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
+                        <Label className="text-sm text-blue-600 dark:text-blue-200">Role</Label>
                         {isEditMode && isAdmin ? (
                           <Select value={editData.roleId} onValueChange={handleRoleChange}>
-                            <SelectTrigger className="mt-1 bg-white">
+                            <SelectTrigger className="mt-1 bg-white dark:bg-blue-950 dark:text-white">
                               <SelectValue placeholder="Select a role" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="dark:bg-blue-950 dark:text-white">
                               {roles.map((role) => (
                                 <SelectItem key={role.id} value={role.id}>
                                   {role.name} (Level {role.level})
@@ -378,23 +374,22 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
                           </Select>
                         ) : (
                           <>
-                            <p className="font-medium text-blue-900">{currentUser.role?.name || 'No Role'}</p>
+                            <p className="font-medium text-blue-900 dark:text-blue-200">{currentUser.role?.name || 'No Role'}</p>
                             {currentUser.role?.level && (
-                              <p className="text-sm text-blue-600">Level {currentUser.role.level}</p>
+                              <p className="text-sm text-blue-600 dark:text-blue-300">Level {currentUser.role.level}</p>
                             )}
                           </>
                         )}
                       </div>
-
                       {/* Department */}
-                      <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
-                        <Label className="text-sm text-purple-600">Department</Label>
+                      <div className="bg-purple-50 dark:bg-purple-900/40 p-3 rounded-lg border border-purple-200 dark:border-purple-700">
+                        <Label className="text-sm text-purple-600 dark:text-purple-200">Department</Label>
                         {isEditMode && isAdmin ? (
                           <Select value={editData.departmentId} onValueChange={(value) => setEditData({ ...editData, departmentId: value })}>
-                            <SelectTrigger className="mt-1 bg-white">
+                            <SelectTrigger className="mt-1 bg-white dark:bg-purple-950 dark:text-white">
                               <SelectValue placeholder="Select a department" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="dark:bg-purple-950 dark:text-white">
                               {departments.map((dept) => (
                                 <SelectItem key={dept.id} value={dept.id}>
                                   {dept.name}
@@ -403,19 +398,18 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
                             </SelectContent>
                           </Select>
                         ) : (
-                          <p className="font-medium text-purple-900">{currentUser.department?.name || 'No Department'}</p>
+                          <p className="font-medium text-purple-900 dark:text-purple-200">{currentUser.department?.name || 'No Department'}</p>
                         )}
                       </div>
-
                       {/* Manager */}
-                      <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                        <Label className="text-sm text-green-600">Reports To</Label>
+                      <div className="bg-green-50 dark:bg-green-900/40 p-3 rounded-lg border border-green-200 dark:border-green-700">
+                        <Label className="text-sm text-green-600 dark:text-green-200">Reports To</Label>
                         {isEditMode && isAdmin ? (
                           <Select value={editData.managerId} onValueChange={(value) => setEditData({ ...editData, managerId: value })}>
-                            <SelectTrigger className="mt-1 bg-white">
+                            <SelectTrigger className="mt-1 bg-white dark:bg-green-950 dark:text-white">
                               <SelectValue placeholder="Select a manager" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="dark:bg-green-950 dark:text-white">
                               <SelectItem value="">No Manager</SelectItem>
                               {managers.map((manager) => (
                                 <SelectItem key={manager.id} value={manager.id}>
@@ -428,55 +422,52 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
                           <>
                             {currentUser.manager ? (
                               <>
-                                <p className="font-medium text-green-900">{currentUser.manager.name}</p>
-                                <p className="text-sm text-green-600">{currentUser.manager.role?.name}</p>
+                                <p className="font-medium text-green-900 dark:text-green-200">{currentUser.manager.name}</p>
+                                <p className="text-sm text-green-600 dark:text-green-300">{currentUser.manager.role?.name}</p>
                               </>
                             ) : (
-                              <p className="font-medium text-green-900">No Manager</p>
+                              <p className="font-medium text-green-900 dark:text-green-200">No Manager</p>
                             )}
                           </>
                         )}
                       </div>
-
                       {/* Employee ID (Admin editable) */}
                       {isAdmin && (
-                        <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-                          <Label className="text-sm text-yellow-600">Employee ID</Label>
+                        <div className="bg-yellow-50 dark:bg-yellow-900/40 p-3 rounded-lg border border-yellow-200 dark:border-yellow-700">
+                          <Label className="text-sm text-yellow-600 dark:text-yellow-200">Employee ID</Label>
                           {isEditMode ? (
                             <Input
                               value={editData.employeeId}
                               onChange={(e) => setEditData({ ...editData, employeeId: e.target.value })}
-                              className="mt-1"
+                              className="mt-1 dark:bg-yellow-950 dark:text-white"
                               placeholder="Enter employee ID"
                             />
                           ) : (
-                            <p className="font-medium text-yellow-900">{currentUser.employeeId || 'Not set'}</p>
+                            <p className="font-medium text-yellow-900 dark:text-yellow-200">{currentUser.employeeId || 'Not set'}</p>
                           )}
                         </div>
                       )}
-
                       {/* Hire Date (Admin editable) */}
                       {isAdmin && (
-                        <div className="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
-                          <Label className="text-sm text-indigo-600">Hire Date</Label>
+                        <div className="bg-indigo-50 dark:bg-indigo-900/40 p-3 rounded-lg border border-indigo-200 dark:border-indigo-700">
+                          <Label className="text-sm text-indigo-600 dark:text-indigo-200">Hire Date</Label>
                           {isEditMode ? (
                             <Input
                               type="date"
                               value={editData.hireDate}
                               onChange={(e) => setEditData({ ...editData, hireDate: e.target.value })}
-                              className="mt-1"
+                              className="mt-1 dark:bg-indigo-950 dark:text-white"
                             />
                           ) : (
-                            <p className="font-medium text-indigo-900">
+                            <p className="font-medium text-indigo-900 dark:text-indigo-200">
                               {currentUser.hireDate ? new Date(currentUser.hireDate).toLocaleDateString() : 'Not set'}
                             </p>
                           )}
                         </div>
                       )}
-
-                      <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
-                        <Label className="text-sm text-orange-600">Direct Reports</Label>
-                        <p className="font-medium text-orange-900">{currentUser.directReports.length} team members</p>
+                      <div className="bg-orange-50 dark:bg-orange-900/40 p-3 rounded-lg border border-orange-200 dark:border-orange-700">
+                        <Label className="text-sm text-orange-600 dark:text-orange-200">Direct Reports</Label>
+                        <p className="font-medium text-orange-900 dark:text-orange-200">{currentUser.directReports.length} team members</p>
                       </div>
                     </div>
 
@@ -501,10 +492,10 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
                 </Card>
 
                 {/* Skills & Bio */}
-                <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-white/20 lg:col-span-2">
+                <Card className="bg-white/10 backdrop-blur-sm shadow-xl border-white/20 lg:col-span-2">
                   <CardHeader className="flex flex-row items-center justify-between">
                     <div>
-                      <CardTitle className="text-xl font-semibold text-gray-900">Professional Profile</CardTitle>
+                      <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white">Professional Profile</CardTitle>
                       <CardDescription>Your skills and professional background</CardDescription>
                     </div>
                     <Button
@@ -524,7 +515,7 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
                             <Textarea
                               value={editData.skills}
                               onChange={(e) => setEditData({ ...editData, skills: e.target.value })}
-                              className="min-h-[100px]"
+                              className="min-h-[100px] "
                               placeholder="Enter your skills, separated by commas"
                             />
                           ) : (
@@ -588,23 +579,23 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
                 {/* Tasks Assigned to Me */}
-                <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-white/20">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-semibold text-gray-900">My Tasks</CardTitle>
-                    <CardDescription>Tasks assigned to you</CardDescription>
+                <Card className="bg-white/10 shadow-xl border-gray-200">
+                  <CardHeader className=" dark:text-white rounded-t-lg">
+                    <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white">My Tasks</CardTitle>
+                    <CardDescription className="dark:text-gray-200">Tasks assigned to you</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="dark:text-white rounded-b-lg">
                     {currentUser.tasksAssignedToMe.length > 0 ? (
                       <div className="space-y-3">
                         {currentUser.tasksAssignedToMe.map((task, index) => (
-                          <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                            <p className="font-medium text-blue-900">Task {index + 1}</p>
-                            <p className="text-sm text-blue-600">Active task</p>
+                          <div key={index} className="bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+                            <p className="font-medium text-blue-900 dark:text-blue-200">Task {index + 1}</p>
+                            <p className="text-sm text-blue-600 dark:text-blue-300">Active task</p>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-gray-500">
+                      <div className="text-center py-8 text-gray-500 dark:text-gray-300">
                         <p>No active tasks assigned</p>
                       </div>
                     )}
@@ -612,23 +603,23 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
                 </Card>
 
                 {/* Tasks Assigned by Me */}
-                <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-white/20">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-semibold text-gray-900">Tasks I Assigned</CardTitle>
-                    <CardDescription>Tasks you have assigned to others</CardDescription>
+                <Card className="bg-white/10 backdrop-blur-sm shadow-xl border-white/20">
+                  <CardHeader className="dark:text-white rounded-t-lg">
+                    <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white">Tasks I Assigned</CardTitle>
+                    <CardDescription className="dark:text-gray-200">Tasks you have assigned to others</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="dark:text-white rounded-b-lg">
                     {currentUser.tasksAssignedByMe.length > 0 ? (
                       <div className="space-y-3">
                         {currentUser.tasksAssignedByMe.map((task, index) => (
-                          <div key={index} className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                            <p className="font-medium text-purple-900">Task {index + 1}</p>
-                            <p className="text-sm text-purple-600">Assigned task</p>
+                          <div key={index} className="bg-purple-50 dark:bg-purple-900/40 border border-purple-200 dark:border-purple-700 rounded-lg p-3">
+                            <p className="font-medium text-purple-900 dark:text-purple-200">Task {index + 1}</p>
+                            <p className="text-sm text-purple-600 dark:text-purple-300">Assigned task</p>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-gray-500">
+                      <div className="text-center py-8 text-gray-500 dark:text-gray-300">
                         <p>No tasks assigned by you</p>
                       </div>
                     )}
@@ -640,15 +631,15 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
             {/* Team Tab */}
             {currentUser.directReports.length > 0 && (
               <TabsContent value="team" className="space-y-6">
-                <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-white/20">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-semibold text-gray-900">My Team</CardTitle>
-                    <CardDescription>People who report directly to you</CardDescription>
+                <Card className="bg-white/10 backdrop-blur-sm shadow-xl border-white/20">
+                  <CardHeader className="dark:text-white rounded-t-lg">
+                    <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white">My Team</CardTitle>
+                    <CardDescription className="dark:text-gray-200">People who report directly to you</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="dark:text-white rounded-b-lg">
                     <div className="grid gap-4">
                       {currentUser.directReports.map((report) => (
-                        <div key={report.id} className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                        <div key={report.id} className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/40 dark:to-indigo-900/40 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
                               <span className="text-white font-medium text-sm">
@@ -656,8 +647,8 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
                               </span>
                             </div>
                             <div>
-                              <h3 className="font-medium text-gray-900">{report.name}</h3>
-                              <p className="text-sm text-gray-500">{report.role?.name}</p>
+                              <h3 className="font-medium text-gray-900 dark:text-white">{report.name}</h3>
+                              <p className="text-sm text-gray-500 dark:text-gray-300">{report.role?.name}</p>
                             </div>
                           </div>
                         </div>
@@ -670,15 +661,15 @@ export function ProfileClient({ currentUser }: ProfileClientProps) {
 
             {/* Settings Tab */}
             <TabsContent value="settings" className="space-y-6">
-              <Card className="bg-white/80 backdrop-blur-sm shadow-xl border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-xl font-semibold text-gray-900">Profile Settings</CardTitle>
-                  <CardDescription>Update your personal information</CardDescription>
+              <Card className="bg-white/10 backdrop-blur-sm shadow-xl border-white/20">
+                <CardHeader className="dark:text-white rounded-t-lg">
+                  <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white">Profile Settings</CardTitle>
+                  <CardDescription className="dark:text-gray-200">Update your personal information</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="dark:text-white rounded-b-lg">
                   <div className="space-y-4">
-                    <div className="text-center py-8 text-gray-500">
-                      <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="text-center py-8 text-gray-500 dark:text-gray-300">
+                      <svg className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>

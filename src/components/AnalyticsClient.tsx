@@ -3,6 +3,7 @@
 import React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import ThemeToggle from './ThemeToggle'
 
 interface AnalyticsClientProps {
   analytics: {
@@ -52,7 +53,7 @@ export default function AnalyticsClient({ analytics, currentUser }: AnalyticsCli
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-white/10 backdrop-blur-xl border-white/20">
+        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">Total Users</CardTitle>
             <svg
@@ -75,7 +76,7 @@ export default function AnalyticsClient({ analytics, currentUser }: AnalyticsCli
           </CardContent>
         </Card>
 
-        <Card className="bg-white/10 backdrop-blur-xl border-white/20">
+        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">Total Tasks</CardTitle>
             <svg
@@ -97,7 +98,7 @@ export default function AnalyticsClient({ analytics, currentUser }: AnalyticsCli
           </CardContent>
         </Card>
 
-        <Card className="bg-white/10 backdrop-blur-xl border-white/20">
+        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">Completed Tasks</CardTitle>
             <svg
@@ -118,7 +119,7 @@ export default function AnalyticsClient({ analytics, currentUser }: AnalyticsCli
           </CardContent>
         </Card>
 
-        <Card className="bg-white/10 backdrop-blur-xl border-white/20">
+        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">Completion Rate</CardTitle>
             <svg
@@ -143,7 +144,7 @@ export default function AnalyticsClient({ analytics, currentUser }: AnalyticsCli
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-white/10 backdrop-blur-xl border-white/20">
+        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
           <CardHeader>
             <CardTitle className="text-white">Task Overview</CardTitle>
             <CardDescription className="text-gray-300">
@@ -169,7 +170,7 @@ export default function AnalyticsClient({ analytics, currentUser }: AnalyticsCli
           </CardContent>
         </Card>
 
-        <Card className="bg-white/10 backdrop-blur-xl border-white/20">
+        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
           <CardHeader>
             <CardTitle className="text-white">Task Completion</CardTitle>
             <CardDescription className="text-gray-300">

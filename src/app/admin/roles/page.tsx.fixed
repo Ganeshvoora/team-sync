@@ -1,0 +1,90 @@
+'use client'
+
+import React, { useState, useEffect } from 'react'
+import PageHeader from '@/components/PageHeader'
+
+interface Role {
+  id: string
+  name: string
+  description: string
+  level: number
+  _count?: {
+    users: number
+  }
+}
+
+export default function AdminRolesPage() {
+  const [roles, setRoles] = useState<Role[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [editingRole, setEditingRole] = useState<Role | null>(null)
+  const [newRole, setNewRole] = useState({
+    name: '',
+    description: '',
+    level: 0
+  })
+  const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    fetchRoles()
+  }, [])
+
+  const fetchRoles = async () => {
+    try {
+      const response = await fetch('/api/roles')
+      if (response.ok) {
+        const data = await response.json()
+        setRoles(data)
+      }
+    } catch (error) {
+      console.error('Error fetching roles:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // All other functions remain the same...
+
+  const getLevelBadgeClass = (level: number) => {
+    if (level >= 90) return 'bg-red-100 text-red-800 border-red-200'
+    if (level >= 70) return 'bg-purple-100 text-purple-800 border-purple-200'
+    if (level >= 50) return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+    return 'bg-blue-100 text-blue-800 border-blue-200'
+  }
+
+  if (loading) {
+    return (
+      <div className="p-4">
+        <PageHeader title="Role Management" subtitle="Admin Panel" />
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-white"></div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-4">
+      <PageHeader title="Role Management" subtitle="Admin Panel" />
+      <div className="bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 p-8">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">System Roles</h2>
+            <p className="text-blue-700 dark:text-blue-200 font-medium">Create and manage user roles and permissions</p>
+          </div>
+          <button
+            onClick={() => {
+              setShowAddForm(!showAddForm)
+              setEditingRole(null)
+            }}
+            className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 font-medium"
+          >
+            Add New Role
+          </button>
+        </div>
+
+        {/* Rest of your UI components */}
+      </div>
+    </div>
+  )
+}

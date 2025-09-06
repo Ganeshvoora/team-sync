@@ -46,6 +46,22 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 })
     }
 
+    // Check if task is overdue
+    if (task.dueDate) {
+      const dueDate = new Date(task.dueDate);
+      const today = new Date();
+      
+      // Set both dates to midnight for accurate day comparison
+      dueDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+      
+      if (dueDate < today) {
+        return NextResponse.json({ 
+          error: 'Status updates are not allowed for overdue tasks. You can still add comments.' 
+        }, { status: 403 })
+      }
+    }
+
     // Check permissions: enhanced rules for workplace hierarchy
     // Users can update tasks if they are:
     // 1. The assignee (can update their own tasks)

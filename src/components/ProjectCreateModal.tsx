@@ -83,13 +83,13 @@ export default function ProjectCreateModal({ isOpen, onClose, onProjectCreated }
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg bg-white/10 backdrop-blur-xl border-white/20">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+  <Card className="w-full max-w-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-2xl">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-white text-xl">Create New Project</CardTitle>
-              <CardDescription className="text-blue-200">
+              <CardTitle className="text-gray-900 dark:text-white text-xl">Create New Project</CardTitle>
+              <CardDescription className="text-gray-600 dark:text-blue-200">
                 Start a new project and assign a manager
               </CardDescription>
             </div>
@@ -97,7 +97,7 @@ export default function ProjectCreateModal({ isOpen, onClose, onProjectCreated }
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-white hover:bg-white/10"
+              className="text-gray-600 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10"
             >
               ✕
             </Button>
@@ -106,21 +106,21 @@ export default function ProjectCreateModal({ isOpen, onClose, onProjectCreated }
         
         <CardContent>
           {dataLoading ? (
-            <div className="text-center py-8 text-blue-300">
+            <div className="text-center py-8 text-gray-600 dark:text-blue-300">
               <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
               <p>Loading...</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-blue-200 text-sm font-medium block mb-1">
+                <label className="text-gray-700 dark:text-blue-200 text-sm font-medium block mb-1">
                   Project Name *
                 </label>
                 <Input
                   value={formData.name}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Enter project name"
-                  className="bg-white/10 border-white/20 text-white placeholder-blue-300"
+                  className="bg-white dark:bg-white/10 border border-gray-200 dark:border-white/20 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-blue-300"
                   required
                 />
               </div>
@@ -133,7 +133,7 @@ export default function ProjectCreateModal({ isOpen, onClose, onProjectCreated }
                   value={formData.description}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Enter project description"
-                  className="bg-white/10 border-white/20 text-white placeholder-blue-300 min-h-[80px]"
+                  className="bg-white dark:bg-white/10 border border-gray-200 dark:border-white/20 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-blue-300 min-h-[80px]"
                 />
               </div>
 

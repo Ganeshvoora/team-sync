@@ -90,18 +90,18 @@ export default function BulkOperations({
 
   if (selectedTasks.length === 0) {
     return (
-      <Card className="bg-white/10 backdrop-blur-xl border-white/20 mb-6">
+  <Card className="bg-white dark:bg-white/10 backdrop-blur-xl border border-gray-200 dark:border-white/20 mb-6">
         <CardContent className="p-6">
-          <div className="text-center text-green-300">
+          <div className="text-center text-gray-700 dark:text-green-300">
             <svg className="w-12 h-12 mx-auto mb-4 text-green-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
             </svg>
-            <p className="text-lg font-medium mb-2">Bulk Operations</p>
-            <p className="text-sm">Select tasks to perform bulk operations</p>
+            <p className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Bulk Operations</p>
+            <p className="text-sm text-gray-600 dark:text-green-200">Select tasks to perform bulk operations</p>
             <Button
               onClick={onSelectAll}
               variant="outline"
-              className="mt-4 border-white/20 text-white hover:bg-white/10"
+              className="mt-4 border border-gray-200 dark:border-white/20 text-gray-900 dark:text-white bg-white dark:bg-white/10 hover:bg-gray-100 dark:hover:bg-white/20"
             >
               Select All Tasks
             </Button>
@@ -112,10 +112,10 @@ export default function BulkOperations({
   }
 
   return (
-    <Card className="bg-white/10 backdrop-blur-xl border-white/20 mb-6">
+  <Card className="bg-white dark:bg-white/10 backdrop-blur-xl border border-gray-200 dark:border-white/20 mb-6">
       <CardHeader>
-        <CardTitle className="text-white">Bulk Operations</CardTitle>
-        <CardDescription className="text-green-200">
+  <CardTitle className="text-gray-900 dark:text-white">Bulk Operations</CardTitle>
+  <CardDescription className="text-gray-600 dark:text-green-200">
           {selectedTasks.length} task{selectedTasks.length !== 1 ? 's' : ''} selected
         </CardDescription>
       </CardHeader>
@@ -125,7 +125,7 @@ export default function BulkOperations({
             onClick={onClearSelection}
             variant="outline"
             size="sm"
-            className="border-white/20 text-white hover:bg-white/10"
+            className="border border-gray-200 dark:border-white/20 text-gray-900 dark:text-white bg-white dark:bg-white/10 hover:bg-gray-100 dark:hover:bg-white/20"
           >
             Clear Selection
           </Button>
@@ -133,7 +133,7 @@ export default function BulkOperations({
             onClick={onSelectAll}
             variant="outline"
             size="sm"
-            className="border-white/20 text-white hover:bg-white/10"
+            className="border border-gray-200 dark:border-white/20 text-gray-900 dark:text-white bg-white dark:bg-white/10 hover:bg-gray-100 dark:hover:bg-white/20"
           >
             Select All
           </Button>
@@ -141,7 +141,7 @@ export default function BulkOperations({
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Select value={operation} onValueChange={setOperation}>
-            <SelectTrigger className="bg-white/10 border-white/20 text-white">
+            <SelectTrigger className="bg-white border border-gray-200 dark:bg-white/10 dark:border-white/20 text-gray-900 dark:text-white">
               <SelectValue placeholder="Select operation" />
             </SelectTrigger>
             <SelectContent>
@@ -154,7 +154,7 @@ export default function BulkOperations({
 
           {operation && operation !== 'delete' && (
             <Select value={value} onValueChange={setValue}>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+              <SelectTrigger className="bg-white border border-gray-200 dark:bg-white/10 dark:border-white/20 text-gray-900 dark:text-white">
                 <SelectValue placeholder={`Select ${operation}`} />
               </SelectTrigger>
               <SelectContent>
@@ -189,26 +189,26 @@ export default function BulkOperations({
           <Button
             onClick={handleBulkOperation}
             disabled={loading || !operation || (operation !== 'delete' && !value)}
-            className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white"
+            className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white shadow-md"
           >
             {loading ? 'Processing...' : 'Apply'}
           </Button>
         </div>
 
         {/* Selected tasks preview */}
-        <div className="border-t border-white/10 pt-4">
-          <p className="text-sm text-green-200 mb-2">Selected Tasks:</p>
+        <div className="border-t border-gray-200 dark:border-white/10 pt-4">
+          <p className="text-sm text-gray-600 dark:text-green-200 mb-2">Selected Tasks:</p>
           <div className="max-h-32 overflow-y-auto space-y-1">
             {selectedTasks.slice(0, 5).map(taskId => {
               const task = tasks.find(t => t.id === taskId)
               return task ? (
-                <div key={taskId} className="text-xs text-white bg-white/5 p-2 rounded">
+                <div key={taskId} className="text-xs text-gray-900 dark:text-white bg-gray-100 dark:bg-white/5 p-2 rounded">
                   {task.title}
                 </div>
               ) : null
             })}
             {selectedTasks.length > 5 && (
-              <div className="text-xs text-green-400">
+              <div className="text-xs text-green-700 dark:text-green-400">
                 ...and {selectedTasks.length - 5} more tasks
               </div>
             )}

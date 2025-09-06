@@ -2,7 +2,6 @@ import { ReactNode } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
-import RoleBasedNavigation from '@/components/RoleBasedNavigation'
 
 interface AdminLayoutProps {
   children: ReactNode
@@ -37,11 +36,8 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50 to-orange-50 flex">
-      <RoleBasedNavigation currentUser={currentUser} />
-      <main className="flex-1 overflow-y-auto">
-        {children}
-      </main>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {children}
     </div>
   )
 }

@@ -47,8 +47,40 @@ export default async function TasksPage() {
     redirect('/login')
   }
 
-  // Fetch tasks from database with related data
+  // Fetch tasks from database with related data based on user role
+  let taskWhereClause: any = {};
+  
+  if (currentUser.role?.name === 'ADMIN' || currentUser.role?.name === 'CEO') {
+    // Admins and CEOs can see all tasks
+    taskWhereClause = {}; // Empty clause means fetch all
+  } else if (currentUser.role?.name === 'MANAGER') {
+    // Managers can see:
+    // 1. Tasks assigned to them
+    // 2. Tasks they assigned to others
+    // 3. Tasks assigned to their direct reports (team members)
+    const directReportIds = (currentUser.directReports || []).map(user => user.id);
+    
+    taskWhereClause = {
+      OR: [
+        { assigneeId: currentUser.id },        // Tasks assigned to them
+        { assignerId: currentUser.id },        // Tasks they assigned
+        { assigneeId: { in: directReportIds } } // Tasks assigned to their team
+      ]
+    };
+  } else {
+    // Regular employees can only see:
+    // 1. Tasks assigned to them
+    // 2. Tasks they created/assigned
+    taskWhereClause = {
+      OR: [
+        { assigneeId: currentUser.id },  // Tasks assigned to them
+        { assignerId: currentUser.id }   // Tasks they assigned
+      ]
+    };
+  }
+  
   const tasks = await prisma.task.findMany({
+    where: taskWhereClause,
     include: {
       assignee: {
         select: {
@@ -89,25 +121,41 @@ export default async function TasksPage() {
       include: {
         role: true,
         department: true,
+        manager: {
+          select: {
+            id: true,
+            name: true,
+            role: true
+          }
+        }
       },
       orderBy: { name: 'asc' }
     })
   } else if (currentUser.role?.name === 'MANAGER') {
-    // Managers can assign to their direct reports and themselves only
-    const directReports = currentUser.directReports || []
-    const memberIds = new Set([
-      currentUser.id, // Include self
-      ...directReports.map(u => u.id)
-    ])
-    
+    // Managers can assign to their direct reports and themselves
     teamMembers = await prisma.user.findMany({
       where: { 
-        id: { in: Array.from(memberIds) },
+        OR: [
+          { id: currentUser.id }, // Include self
+          { managerId: currentUser.id }, // Direct reports
+          {
+            manager: {
+              managerId: currentUser.id // Reports to managers who report to current user (2 levels)
+            }
+          }
+        ],
         status: 'ACTIVE'
       },
       include: {
         role: true,
         department: true,
+        manager: {
+          select: {
+            id: true,
+            name: true,
+            role: true
+          }
+        }
       },
       orderBy: { name: 'asc' }
     })
@@ -121,6 +169,13 @@ export default async function TasksPage() {
       include: {
         role: true,
         department: true,
+        manager: {
+          select: {
+            id: true,
+            name: true,
+            role: true
+          }
+        }
       }
     })
   }

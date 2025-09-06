@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import AdminLayout from '@/components/AdminLayout'
+import PageHeader from '@/components/PageHeader'
 
 interface Role {
   id: string
@@ -143,16 +143,18 @@ export default function AdminRolesPage() {
 
   if (loading) {
     return (
-      <AdminLayout title="Role Management" subtitle="Admin Panel">
+      <div className="p-4">
+        <PageHeader title="Role Management" subtitle="Admin Panel" />
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-white"></div>
         </div>
-      </AdminLayout>
+      </div>
     )
   }
 
   return (
-    <AdminLayout title="Role Management" subtitle="Admin Panel">
+    <div className="p-4">
+      <PageHeader title="Role Management" subtitle="Admin Panel" />
       <div className="bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 p-8">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -359,6 +361,6 @@ export default function AdminRolesPage() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </div>
   )
 }

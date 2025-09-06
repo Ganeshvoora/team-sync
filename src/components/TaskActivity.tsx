@@ -144,7 +144,7 @@ export default function TaskActivity({ taskId }: TaskActivityProps) {
       ) : (
         <div className="space-y-3">
           {activities.map((activity, index) => (
-            <Card key={activity.id} className="bg-white/5 border-white/10">
+            <Card key={activity.id} className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10">
               <CardContent className="p-4">
                 <div className="flex items-start space-x-3">
                   <div className={`p-2 rounded-full ${getActivityColor(activity.action)}`}>
@@ -155,19 +155,19 @@ export default function TaskActivity({ taskId }: TaskActivityProps) {
                     <div className="flex items-center space-x-2 mb-1">
                       <Avatar className="h-6 w-6">
                         <AvatarImage src={activity.user.profilePictureUrl} />
-                        <AvatarFallback className="bg-green-600 text-white text-xs">
+                        <AvatarFallback className="bg-blue-600 text-white text-xs">
                           {getInitials(activity.user.name)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-white font-medium text-sm">
+                      <span className="text-gray-900 dark:text-white font-medium text-sm">
                         {activity.user.name}
                       </span>
-                      <span className="text-green-400 text-xs">
+                      <span className="text-gray-600 dark:text-green-400 text-xs">
                         {formatDate(activity.createdAt)}
                       </span>
                     </div>
                     
-                    <p className="text-green-100 text-sm leading-relaxed">
+                    <p className="text-gray-700 dark:text-green-100 text-sm leading-relaxed">
                       {activity.description}
                     </p>
                   </div>
@@ -175,7 +175,7 @@ export default function TaskActivity({ taskId }: TaskActivityProps) {
                 
                 {/* Timeline connector */}
                 {index < activities.length - 1 && (
-                  <div className="absolute left-[2.25rem] mt-2 w-px h-6 bg-white/10"></div>
+                  <div className="absolute left-[2.25rem] mt-2 w-px h-6 bg-gray-200 dark:bg-white/10"></div>
                 )}
               </CardContent>
             </Card>

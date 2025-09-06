@@ -1,0 +1,167 @@
+/* Theme Colors - Light & Dark Mode Compatible */
+:root {
+  /* Light theme colors */
+  --color-primary: #6366f1; /* Indigo 500 */
+  --color-primary-hover: #4f46e5; /* Indigo 600 */
+  --color-primary-light: #e0e7ff; /* Indigo 100 */
+  --color-primary-dark: #312e81; /* Indigo 900 */
+  
+  --color-success: #10b981; /* Emerald 500 */
+  --color-success-light: #d1fae5; /* Emerald 100 */
+  --color-success-dark: #064e3b; /* Emerald 900 */
+  
+  --color-warning: #f59e0b; /* Amber 500 */
+  --color-warning-light: #fef3c7; /* Amber 100 */
+  --color-warning-dark: #78350f; /* Amber 900 */
+  
+  --color-info: #3b82f6; /* Blue 500 */
+  --color-info-light: #dbeafe; /* Blue 100 */
+  --color-info-dark: #1e3a8a; /* Blue 900 */
+  
+  --color-danger: #ef4444; /* Red 500 */
+  --color-danger-light: #fee2e2; /* Red 100 */
+  --color-danger-dark: #7f1d1d; /* Red 900 */
+  
+  /* Light mode backgrounds */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb; /* Gray 50 */
+  --bg-tertiary: #f3f4f6; /* Gray 100 */
+  
+  /* Light mode text */
+  --text-primary: #111827; /* Gray 900 */
+  --text-secondary: #4b5563; /* Gray 600 */
+  --text-tertiary: #6b7280; /* Gray 500 */
+  --text-quaternary: #9ca3af; /* Gray 400 */
+  
+  /* Light mode borders */
+  --border-primary: #e5e7eb; /* Gray 200 */
+  --border-secondary: #d1d5db; /* Gray 300 */
+  
+  /* Light mode tooltips */
+  --tooltip-bg: rgba(255, 255, 255, 0.95);
+  --tooltip-border: #e5e7eb;
+  --tooltip-text: #111827;
+}
+
+.dark {
+  /* Dark mode backgrounds */
+  --bg-primary: #1f2937; /* Gray 800 */
+  --bg-secondary: #111827; /* Gray 900 */
+  --bg-tertiary: #374151; /* Gray 700 */
+  
+  /* Dark mode text */
+  --text-primary: #ffffff;
+  --text-secondary: #d1d5db; /* Gray 300 */
+  --text-tertiary: #9ca3af; /* Gray 400 */
+  --text-quaternary: #6b7280; /* Gray 500 */
+  
+  /* Dark mode borders */
+  --border-primary: #374151; /* Gray 700 */
+  --border-secondary: #4b5563; /* Gray 600 */
+  
+  /* Dark mode tooltips */
+  --tooltip-bg: rgba(31, 41, 55, 0.95);
+  --tooltip-border: #374151;
+  --tooltip-text: #ffffff;
+  
+  /* Dark mode status colors adjustments */
+  --color-primary-light: #312e81; /* Indigo 900 */
+  --color-primary-dark: #e0e7ff; /* Indigo 100 */
+  
+  --color-success-light: #064e3b; /* Emerald 900 */
+  --color-success-dark: #d1fae5; /* Emerald 100 */
+  
+  --color-warning-light: #78350f; /* Amber 900 */
+  --color-warning-dark: #fef3c7; /* Amber 100 */
+  
+  --color-info-light: #1e3a8a; /* Blue 900 */
+  --color-info-dark: #dbeafe; /* Blue 100 */
+  
+  --color-danger-light: #7f1d1d; /* Red 900 */
+  --color-danger-dark: #fee2e2; /* Red 100 */
+}
+
+/* Utility classes for consistent theming */
+.theme-bg-primary {
+  background-color: var(--bg-primary);
+}
+
+.theme-bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.theme-text-primary {
+  color: var(--text-primary);
+}
+
+.theme-text-secondary {
+  color: var(--text-secondary);
+}
+
+.theme-border {
+  border-color: var(--border-primary);
+}
+
+.theme-card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  transition: all 0.2s ease-in-out;
+}
+
+.theme-card:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.dark .theme-card:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+}
+
+/* Button variants */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+/* Status indicators */
+.status-success {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.status-warning {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.status-info {
+  background-color: var(--color-info-light);
+  color: var(--color-info);
+}
+
+.status-danger {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+/* Chart colors for consistency */
+.chart-primary { color: var(--color-primary); }
+.chart-success { color: var(--color-success); }
+.chart-warning { color: var(--color-warning); }
+.chart-info { color: var(--color-info); }
+.chart-danger { color: var(--color-danger); }

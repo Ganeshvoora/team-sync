@@ -16,7 +16,7 @@ import ReactFlow, {
   Position,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import AdminLayout from '@/components/AdminLayout'
+import PageHeader from '@/components/PageHeader'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -26,15 +26,16 @@ import { getLayoutedElements } from '@/utils/orgChartLayout'
 
 // Custom node component for organization chart
 const OrgChartNode = ({ data }: { data: any }) => {
-  const isCurrentUser = data.isCurrentUser
-  const canManage = data.canManage
+  const isCurrentUser = data.isCurrentUser;
+  const canManage = data.canManage;
+  const isAdmin = data.isAdmin;
   
   return (
     <div 
       className={`backdrop-blur-xl border rounded-xl p-4 min-w-[220px] shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer ${
         isCurrentUser 
           ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-blue-400/50' 
-          : 'bg-white/10 border-white/20 hover:bg-white/15'
+          : 'bg-white dark:bg-white/10 border-gray-200 dark:border-white/20 hover:bg-gray-50 dark:hover:bg-white/15'
       }`}
       onClick={() => data.onNodeClick && data.onNodeClick(data)}
     >
@@ -58,28 +59,30 @@ const OrgChartNode = ({ data }: { data: any }) => {
         </div>
         <div className="flex-1">
           <div className="flex items-center space-x-2">
-            <h3 className="text-white font-semibold text-sm">{data.name}</h3>
+            <h3 className="text-gray-900 dark:text-white font-semibold text-sm">{data.name}</h3>
             {isCurrentUser && (
-              <span className="bg-blue-400/20 text-blue-300 text-xs px-2 py-1 rounded">You</span>
+              <span className="bg-blue-100 dark:bg-blue-400/20 text-blue-800 dark:text-blue-300 text-xs px-2 py-1 rounded">You</span>
             )}
           </div>
-          <p className="text-blue-200 text-xs">{data.role}</p>
-          <p className="text-purple-200 text-xs">{data.department}</p>
+          <p className="text-blue-700 dark:text-blue-200 text-xs">{data.role}</p>
+          <p className="text-purple-700 dark:text-purple-200 text-xs">{data.department}</p>
           {data.employeeId && (
-            <p className="text-gray-300 text-xs">{data.employeeId}</p>
+            <p className="text-gray-600 dark:text-gray-300 text-xs">{data.employeeId}</p>
           )}
         </div>
       </div>
       
       <div className="mt-3 flex justify-between items-center">
         {data.teamSize > 0 && (
-          <div className="bg-white/10 rounded-lg px-2 py-1">
-            <p className="text-white text-xs font-medium">Team: {data.teamSize}</p>
+          <div className="bg-gray-100 dark:bg-white/10 rounded-lg px-2 py-1">
+            <p className="text-gray-900 dark:text-white text-xs font-medium">Team: {data.teamSize}</p>
           </div>
         )}
         
         {canManage && (
-          <span className="bg-green-400/20 text-green-300 text-xs px-2 py-1 rounded">Manageable</span>
+          <span className="bg-green-100 dark:bg-green-400/20 text-green-800 dark:text-green-300 text-xs px-2 py-1 rounded">
+            {isAdmin ? 'Admin Access' : 'Manageable'}
+          </span>
         )}
       </div>
 
@@ -180,7 +183,7 @@ export default function OrgChartPage() {
         
         // Add timeout to prevent infinite loading
         const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 30000) // 15 second timeout
         
         const response = await fetch('/api/org-chart', {
           signal: controller.signal
@@ -284,29 +287,31 @@ export default function OrgChartPage() {
 
   if (loading) {
     return (
-      <AdminLayout title="Organization Chart" subtitle="Interactive View">
+      <div className="p-4">
+        <PageHeader title="Organization Chart" subtitle="Interactive View" />
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-            <div className="text-white text-xl mb-2">Loading organization chart...</div>
-            <div className="text-blue-300 text-sm">This should take just a moment</div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-white mx-auto mb-4"></div>
+            <div className="text-gray-900 dark:text-white text-xl mb-2">Loading organization chart...</div>
+            <div className="text-blue-600 dark:text-blue-300 text-sm">This should take just a moment</div>
           </div>
         </div>
-      </AdminLayout>
+      </div>
     )
   }
 
   if (error) {
     return (
-      <AdminLayout title="Organization Chart" subtitle="Interactive View">
-        <div className="bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 p-8 text-center">
-          <div className="text-red-400 mb-4">
+      <div className="p-4">
+        <PageHeader title="Organization Chart" subtitle="Interactive View" />
+        <div className="bg-white dark:bg-white/10 backdrop-blur-xl rounded-xl border border-gray-200 dark:border-white/20 p-8 text-center">
+          <div className="text-red-500 dark:text-red-400 mb-4">
             <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h3 className="text-white text-xl font-semibold mb-2">Unable to Load Organization Chart</h3>
-          <p className="text-gray-300 mb-6">{error}</p>
+          <h3 className="text-gray-900 dark:text-white text-xl font-semibold mb-2">Unable to Load Organization Chart</h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">{error}</p>
           {error.includes('log in') ? (
             <a
               href="/login"
@@ -323,21 +328,40 @@ export default function OrgChartPage() {
             </button>
           )}
         </div>
-      </AdminLayout>
+      </div>
     )
   }
 
   return (
-    <AdminLayout title="Organization Chart" subtitle="Interactive View">
+    <div className="p-4">
+      <PageHeader title="Organization Chart" subtitle="Interactive View" />
+      {stats && stats.adminView && (
+        <div className="bg-white/5 backdrop-blur-xl rounded-xl border border-white/20 p-4 mb-4">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-purple-500/20 mr-3">
+              <svg className="w-6 h-6 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-gray-900 dark:text-white text-lg font-medium">{stats.userRole === 'CEO' ? 'CEO Organization View' : 'Administrator Organization View'}</h2>
+              <p className="text-purple-700 dark:text-purple-200 text-sm">
+                You have full visibility and management capabilities over all team members
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <div className="flex min-h-[80vh] gap-4">
         {/* Main Chart Area */}
-        <div className={`bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 p-6 relative transition-all duration-300 ${
+        <div className={`bg-white dark:bg-white/5 backdrop-blur-xl rounded-xl border border-gray-200 dark:border-white/10 p-6 relative transition-all duration-300 ${
           sidebarUser ? 'flex-1' : 'w-full'
         }`}>
           {/* Debug Panel */}
-          {/* <div className="absolute bottom-6 left-6 z-10 bg-black/40 backdrop-blur-xl rounded-lg p-4 border border-white/10 max-w-sm">
-            <h3 className="text-white font-semibold mb-2 text-sm">Debug Info</h3>
-            <div className="text-xs text-gray-300 space-y-1">
+          {/* <div className="absolute bottom-6 left-6 z-10 bg-gray-100 dark:bg-black/40 backdrop-blur-xl rounded-lg p-4 border border-gray-200 dark:border-white/10 max-w-sm">
+            <h3 className="text-gray-900 dark:text-white font-semibold mb-2 text-sm">Debug Info</h3>
+            <div className="text-xs text-gray-600 dark:text-gray-300 space-y-1">
               <p>Nodes: {nodes.length}</p>
               <p>Edges: {edges.length}</p>
               <p>Raw Nodes: {rawNodes.length}</p>
@@ -354,9 +378,9 @@ export default function OrgChartPage() {
           </div> */}
 
           {/* Layout Controls */}
-          <div className="absolute top-6 right-6 z-10 bg-black/40 backdrop-blur-xl rounded-lg p-3 border border-white/10">
+          <div className="absolute top-6 right-6 z-10 bg-white dark:bg-black/40 backdrop-blur-xl rounded-lg p-3 border border-gray-200 dark:border-white/10">
             <div className="flex items-center space-x-2">
-              <span className="text-white text-sm">Layout:</span>
+              <span className="text-gray-900 dark:text-white text-sm">Layout:</span>
               <Button
                 variant={layoutDirection === 'TB' ? 'default' : 'outline'}
                 size="sm"
@@ -387,24 +411,37 @@ export default function OrgChartPage() {
 
           {/* Statistics Panel */}
           {stats && (
-            <div className="absolute top-6 left-6 z-10 bg-black/40 backdrop-blur-xl rounded-lg p-4 border border-white/10">
-              <h3 className="text-white font-semibold mb-2">Organization Stats</h3>
+            <div className="absolute top-6 left-6 z-10 bg-white/90 dark:bg-black/40 backdrop-blur-xl rounded-lg p-4 border border-gray-200 dark:border-white/10">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-gray-900 dark:text-white font-semibold">Organization Stats</h3>
+                {stats.adminView && (
+                  <Badge variant="outline" className="ml-2 bg-purple-100 dark:bg-purple-600/30 border-purple-300 dark:border-purple-500/30 text-purple-700 dark:text-purple-200 text-xs">
+                    {stats.userRole === 'CEO' ? 'CEO View' : 'Admin View'} • Full Access
+                  </Badge>
+                )}
+              </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-400">Total Users:</span>
-                  <p className="text-white font-medium">{stats.totalUsers}</p>
+                  <span className="text-gray-600 dark:text-gray-400">Total Users:</span>
+                  <p className="text-gray-900 dark:text-white font-medium">{stats.totalUsers}</p>
+                  {stats.adminView && (
+                    <p className="text-purple-600 dark:text-purple-300 text-xs">Organization-wide</p>
+                  )}
                 </div>
                 <div>
-                  <span className="text-gray-400">Departments:</span>
-                  <p className="text-white font-medium">{stats.departments}</p>
+                  <span className="text-gray-600 dark:text-gray-400">Departments:</span>
+                  <p className="text-gray-900 dark:text-white font-medium">{stats.departments}</p>
+                  {stats.adminView && (
+                    <p className="text-purple-600 dark:text-purple-300 text-xs">All departments</p>
+                  )}
                 </div>
                 <div>
-                  <span className="text-gray-400">Managers:</span>
-                  <p className="text-white font-medium">{stats.managers}</p>
+                  <span className="text-gray-600 dark:text-gray-400">Managers:</span>
+                  <p className="text-gray-900 dark:text-white font-medium">{stats.managers}</p>
                 </div>
                 <div>
-                  <span className="text-gray-400">Direct Reports:</span>
-                  <p className="text-white font-medium">{stats.directReports}</p>
+                  <span className="text-gray-600 dark:text-gray-400">Direct Reports:</span>
+                  <p className="text-gray-900 dark:text-white font-medium">{stats.directReports}</p>
                 </div>
               </div>
             </div>
@@ -428,9 +465,9 @@ export default function OrgChartPage() {
             className="bg-transparent"
             proOptions={{ hideAttribution: true }}
           >
-            <Controls className="bg-black/20 border border-white/20" />
+            <Controls className="bg-white/20 dark:bg-black/20 border border-gray-300 dark:border-white/20" />
             <MiniMap 
-              className="bg-black/40 border border-white/20" 
+              className="bg-white/40 dark:bg-black/40 border border-gray-300 dark:border-white/20" 
               nodeColor={(node) => node.data.isCurrentUser ? '#3B82F6' : '#8B5CF6'}
               pannable
               zoomable
@@ -446,14 +483,24 @@ export default function OrgChartPage() {
 
         {/* Profile Sidebar */}
         {sidebarUser && (
-          <div className="w-80 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 p-6 overflow-y-auto">
+          <div className="w-80 bg-white dark:bg-white/10 backdrop-blur-xl rounded-xl border border-gray-300 dark:border-white/20 p-6 overflow-y-auto">
             <div className="flex justify-between items-start mb-6">
-              <h3 className="text-white font-semibold text-lg">Profile Details</h3>
+              <div>
+                <h3 className="text-gray-900 dark:text-white font-bold text-lg">Profile Details</h3>
+                {sidebarUser.isAdmin && sidebarUser.canManage && (
+                  <div className="flex items-center mt-1">
+                    <span className="w-2 h-2 rounded-full bg-green-400 mr-2"></span>
+                    <span className="text-xs text-green-700 dark:text-green-300 font-semibold">
+                      Administrative access to this employee
+                    </span>
+                  </div>
+                )}
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarUser(null)}
-                className="text-gray-400 hover:text-white hover:bg-white/10"
+                className="text-gray-700 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -463,17 +510,17 @@ export default function OrgChartPage() {
               {/* Profile Header */}
               <div className="text-center">
                 <div className="w-20 h-20 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-white font-bold text-2xl">
+                  <span className="text-white font-extrabold text-2xl">
                     {sidebarUser.name.split(' ').map((n: string) => n[0]).join('')}
                   </span>
                 </div>
-                <h4 className="text-white font-semibold text-lg">{sidebarUser.name}</h4>
-                <p className="text-blue-200 text-sm">{sidebarUser.email}</p>
+                <h4 className="text-gray-900 dark:text-white font-bold text-lg">{sidebarUser.name}</h4>
+                <p className="text-blue-700 dark:text-blue-200 text-sm font-medium">{sidebarUser.email}</p>
                 <div className="flex justify-center space-x-2 mt-2">
-                  <Badge variant="secondary" className="bg-blue-400/20 text-blue-300">
+                  <Badge variant="secondary" className="bg-blue-200 dark:bg-blue-400/20 text-blue-900 dark:text-blue-300 font-semibold">
                     {sidebarUser.role}
                   </Badge>
-                  <Badge variant="outline" className="border-purple-400/50 text-purple-300">
+                  <Badge variant="outline" className="border-purple-300 dark:border-purple-400/50 text-purple-800 dark:text-purple-300 font-semibold">
                     {sidebarUser.department}
                   </Badge>
                 </div>
@@ -481,57 +528,57 @@ export default function OrgChartPage() {
 
               {/* Details */}
               <div className="space-y-4">
-                <div className="bg-white/5 rounded-lg p-3">
+                <div className="bg-gray-100 dark:bg-white/5 rounded-lg p-3">
                   <div className="flex items-center space-x-2 mb-2">
                     <User className="w-4 h-4 text-blue-400" />
-                    <span className="text-sm text-gray-300">Personal Info</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300 font-semibold">Personal Info</span>
                   </div>
                   <div className="space-y-2 text-sm">
                     {sidebarUser.employeeId && (
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Employee ID:</span>
-                        <span className="text-white">{sidebarUser.employeeId}</span>
+                        <span className="text-gray-700 dark:text-gray-400 font-medium">Employee ID:</span>
+                        <span className="text-gray-900 dark:text-white font-semibold">{sidebarUser.employeeId}</span>
                       </div>
                     )}
                     {sidebarUser.contactNumber && (
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Phone:</span>
-                        <span className="text-white">{sidebarUser.contactNumber}</span>
+                        <span className="text-gray-700 dark:text-gray-400 font-medium">Phone:</span>
+                        <span className="text-gray-900 dark:text-white font-semibold">{sidebarUser.contactNumber}</span>
                       </div>
                     )}
                     {sidebarUser.location && (
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Location:</span>
-                        <span className="text-white">{sidebarUser.location}</span>
+                        <span className="text-gray-700 dark:text-gray-400 font-medium">Location:</span>
+                        <span className="text-gray-900 dark:text-white font-semibold">{sidebarUser.location}</span>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {sidebarUser.teamSize > 0 && (
-                  <div className="bg-white/5 rounded-lg p-3">
+                  <div className="bg-green-50 dark:bg-white/5 rounded-lg p-3">
                     <div className="flex items-center space-x-2 mb-2">
                       <Users className="w-4 h-4 text-green-400" />
-                      <span className="text-sm text-gray-300">Team Lead</span>
+                      <span className="text-sm text-green-700 dark:text-gray-300 font-semibold">Team Lead</span>
                     </div>
-                    <p className="text-white text-sm">Manages {sidebarUser.teamSize} team members</p>
+                    <p className="text-green-900 dark:text-white text-sm font-semibold">Manages {sidebarUser.teamSize} team members</p>
                   </div>
                 )}
 
                 {sidebarUser.skills && (
-                  <div className="bg-white/5 rounded-lg p-3">
+                  <div className="bg-yellow-50 dark:bg-white/5 rounded-lg p-3">
                     <div className="flex items-center space-x-2 mb-2">
                       <Award className="w-4 h-4 text-yellow-400" />
-                      <span className="text-sm text-gray-300">Skills</span>
+                      <span className="text-sm text-yellow-700 dark:text-gray-300 font-semibold">Skills</span>
                     </div>
-                    <p className="text-white text-sm">{sidebarUser.skills}</p>
+                    <p className="text-yellow-900 dark:text-white text-sm font-semibold">{sidebarUser.skills}</p>
                   </div>
                 )}
 
                 {sidebarUser.bio && (
-                  <div className="bg-white/5 rounded-lg p-3">
-                    <span className="text-sm text-gray-300 block mb-2">Bio</span>
-                    <p className="text-white text-sm">{sidebarUser.bio}</p>
+                  <div className="bg-gray-50 dark:bg-white/5 rounded-lg p-3">
+                    <span className="text-sm text-gray-700 dark:text-gray-300 block mb-2 font-semibold">Bio</span>
+                    <p className="text-gray-900 dark:text-white text-sm font-semibold">{sidebarUser.bio}</p>
                   </div>
                 )}
               </div>
@@ -656,6 +703,6 @@ export default function OrgChartPage() {
           )}
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </div>
   )
 }

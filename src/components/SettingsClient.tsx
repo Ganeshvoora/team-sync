@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useTheme } from '@/contexts/ThemeContext'
+import ThemeToggle from './ThemeToggle'
 import { Badge } from "@/components/ui/badge"
 
 interface SettingsClientProps {
@@ -26,26 +28,47 @@ export default function SettingsClient({ currentUser }: SettingsClientProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDMpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20"></div>
-      
-      <div className="relative p-6">
-        <div className="mb-6">
-          <h1 className="text-4xl font-bold text-white mb-2">Settings</h1>
-          <p className="text-gray-200">Manage your account and application preferences</p>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
+            <p className="text-gray-600 dark:text-gray-300">Manage your account and application preferences</p>
+          </div>
+          <ThemeToggle />
         </div>
 
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="bg-white/10 border-white/20">
-              <TabsTrigger value="profile" className="data-[state=active]:bg-white/20">Profile</TabsTrigger>
-              <TabsTrigger value="account" className="data-[state=active]:bg-white/20">Account</TabsTrigger>
-              <TabsTrigger value="notifications" className="data-[state=active]:bg-white/20">Notifications</TabsTrigger>
-              <TabsTrigger value="security" className="data-[state=active]:bg-white/20">Security</TabsTrigger>
+            <TabsList className="bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+              <TabsTrigger 
+                value="profile" 
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-600 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white text-gray-600 dark:text-gray-300"
+              >
+                Profile
+              </TabsTrigger>
+              <TabsTrigger 
+                value="account" 
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-600 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white text-gray-600 dark:text-gray-300"
+              >
+                Account
+              </TabsTrigger>
+              <TabsTrigger 
+                value="notifications" 
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-600 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white text-gray-600 dark:text-gray-300"
+              >
+                Notifications
+              </TabsTrigger>
+              <TabsTrigger 
+                value="security" 
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-600 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white text-gray-600 dark:text-gray-300"
+              >
+                Security
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile" className="space-y-6">
-              <Card className="bg-white/10 backdrop-blur-xl border-white/20">
+              <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-200">
                 <CardHeader>
                   <CardTitle className="text-white">Profile Information</CardTitle>
                   <CardDescription className="text-gray-200">
@@ -54,15 +77,15 @@ export default function SettingsClient({ currentUser }: SettingsClientProps) {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="flex items-center space-x-4">
-                    <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                    <div className="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center">
                       <span className="text-white text-2xl font-bold">
                         {currentUser.name?.charAt(0) || 'U'}
                       </span>
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold text-white">{currentUser.name}</h3>
-                      <p className="text-gray-300">{currentUser.role?.name}</p>
-                      <p className="text-gray-400">{currentUser.department?.name}</p>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{currentUser.name}</h3>
+                      <p className="text-gray-600 dark:text-gray-400">{currentUser.role?.name}</p>
+                      <p className="text-gray-500 dark:text-gray-500">{currentUser.department?.name}</p>
                     </div>
                   </div>
 
@@ -74,7 +97,7 @@ export default function SettingsClient({ currentUser }: SettingsClientProps) {
                       <Input
                         value={formData.name}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                        className="bg-white/10 border-white/20 text-white placeholder-gray-300"
+                        className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                       />
                     </div>
 
@@ -85,7 +108,7 @@ export default function SettingsClient({ currentUser }: SettingsClientProps) {
                       <Input
                         value={formData.email}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                        className="bg-white/10 border-white/20 text-white placeholder-gray-300"
+                        className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                         disabled
                       />
                     </div>
@@ -98,7 +121,7 @@ export default function SettingsClient({ currentUser }: SettingsClientProps) {
                         value={formData.phone}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                         placeholder="Enter phone number"
-                        className="bg-white/10 border-white/20 text-white placeholder-gray-300"
+                        className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                       />
                     </div>
 
@@ -115,7 +138,7 @@ export default function SettingsClient({ currentUser }: SettingsClientProps) {
                   <div className="flex justify-end">
                     <Button 
                       onClick={handleSave}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white"
                     >
                       Save Changes
                     </Button>
@@ -125,10 +148,10 @@ export default function SettingsClient({ currentUser }: SettingsClientProps) {
             </TabsContent>
 
             <TabsContent value="account" className="space-y-6">
-              <Card className="bg-white/10 backdrop-blur-xl border-white/20">
+              <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-200">
                 <CardHeader>
-                  <CardTitle className="text-white">Account Details</CardTitle>
-                  <CardDescription className="text-gray-200">
+                  <CardTitle className="text-gray-900 dark:text-white">Account Details</CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">
                     View your account information and organizational details
                   </CardDescription>
                 </CardHeader>
@@ -175,16 +198,16 @@ export default function SettingsClient({ currentUser }: SettingsClientProps) {
             </TabsContent>
 
             <TabsContent value="notifications" className="space-y-6">
-              <Card className="bg-white/10 backdrop-blur-xl border-white/20">
+              <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-200">
                 <CardHeader>
-                  <CardTitle className="text-white">Notification Preferences</CardTitle>
-                  <CardDescription className="text-gray-200">
+                  <CardTitle className="text-gray-900 dark:text-white">Notification Preferences</CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">
                     Choose how you want to receive notifications
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-8 text-gray-300">
-                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 17h5l-5 5v-5zM4 19h6v-2H4v2zM4 15h8v-2H4v2zM4 11h8V9H4v2zM4 7h8V5H4v2z" />
                     </svg>
                     <p>Notification preferences coming soon</p>
@@ -194,16 +217,16 @@ export default function SettingsClient({ currentUser }: SettingsClientProps) {
             </TabsContent>
 
             <TabsContent value="security" className="space-y-6">
-              <Card className="bg-white/10 backdrop-blur-xl border-white/20">
+              <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-200">
                 <CardHeader>
-                  <CardTitle className="text-white">Security Settings</CardTitle>
-                  <CardDescription className="text-gray-200">
+                  <CardTitle className="text-gray-900 dark:text-white">Security Settings</CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">
                     Manage your account security and privacy
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-8 text-gray-300">
-                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                     <p>Security settings coming soon</p>

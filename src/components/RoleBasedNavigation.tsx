@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import LogoutButton from './LogoutButton'
 import NotificationBell from './NotificationBell'
+import { useTheme } from '../contexts/ThemeContext'
+import ThemeToggle from './ThemeToggle'
 
 // Define navigation items for different roles
 const getUserNavigation = (userRole?: string) => {
@@ -18,6 +20,17 @@ const getUserNavigation = (userRole?: string) => {
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 11h8M8 15h8" />
+        </svg>
+      ),
+      notifications: 0,
+      roles: ['CEO', 'Admin', 'Director', 'Manager', 'Associate']
+    },
+    {
+      name: 'Profile',
+      href: '/profile',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
       ),
       notifications: 0,
@@ -104,6 +117,41 @@ const getUserNavigation = (userRole?: string) => {
       ),
       notifications: 0,
       roles: ['CEO', 'Admin']
+    },
+    {
+      name: 'Users Management',
+      href: '/admin/users',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      ),
+      notifications: 0,
+      roles: ['CEO', 'Admin']
+    },
+    {
+      name: 'Approvals',
+      href: '/admin/approvals',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 14l2 2 4-4" />
+        </svg>
+      ),
+      notifications: 0,
+      roles: ['CEO', 'Admin']
+    },
+    {
+      name: 'Settings',
+      href: '/admin/settings',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      ),
+      notifications: 0,
+      roles: ['CEO', 'Admin']
     }
   ]
 
@@ -111,6 +159,11 @@ const getUserNavigation = (userRole?: string) => {
   let navigation = baseNavigation.filter(item => 
     !userRole || item.roles.includes(userRole)
   )
+
+  // If no role or empty navigation, show basic navigation for all users
+  if (!userRole || navigation.length === 0) {
+    navigation = baseNavigation
+  }
 
   // Add admin navigation for admin users
   if (userRole === 'CEO' || userRole === 'Admin') {
@@ -136,7 +189,47 @@ export default function RoleBasedNavigation({ currentUser }: RoleBasedNavigation
   const [isCollapsed, setIsCollapsed] = useState(false)
   const pathname = usePathname()
   
-  const navigation = getUserNavigation(currentUser?.role?.name)
+  let navigation = getUserNavigation(currentUser?.role?.name)
+  
+  // Fallback to basic navigation if empty
+  if (!navigation || navigation.length === 0) {
+    navigation = [
+      { 
+        name: 'Dashboard', 
+        href: '/dashboard', 
+        icon: (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+          </svg>
+        ),
+        notifications: 0,
+        roles: ['CEO', 'Admin', 'Director', 'Manager', 'Associate']
+      },
+      { 
+        name: 'Tasks', 
+        href: '/tasks', 
+        icon: (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+        ),
+        notifications: 0,
+        roles: ['CEO', 'Admin', 'Director', 'Manager', 'Associate']
+      },
+      { 
+        name: 'Settings', 
+        href: '/settings', 
+        icon: (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        ),
+        notifications: 0,
+        roles: ['CEO', 'Admin', 'Director', 'Manager', 'Associate']
+      }
+    ]
+  }
 
   // Get user initials for avatar
   const getUserInitials = (name: string) => {
@@ -149,32 +242,34 @@ export default function RoleBasedNavigation({ currentUser }: RoleBasedNavigation
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white shadow-2xl">
+    <div className={`${isCollapsed ? 'w-20' : 'w-64'} h-screen bg-gray-900 border-r border-gray-700 transition-all duration-300 flex flex-col shadow-2xl`}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-700">
-        {!isCollapsed && (
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
+      <div className="flex items-center justify-between p-4 border-b border-gray-700">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          {!isCollapsed && (
             <div>
               <h1 className="text-lg font-bold text-white">Team-Sync</h1>
-              <p className="text-xs text-slate-300">Enterprise Edition</p>
+              <p className="text-xs text-gray-400">Enterprise Edition</p>
             </div>
-          </div>
-        )}
+          )}
+        </div>
         <div className="flex items-center space-x-2">
-          {currentUser && <NotificationBell />}
+          {!isCollapsed && currentUser && <NotificationBell />}
+          {!isCollapsed && <ThemeToggle />}
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="text-slate-300 hover:text-white hover:bg-slate-700 p-2"
+            className="text-gray-300 hover:text-white hover:bg-gray-700 p-2"
+            title={isCollapsed ? "Expand navigation" : "Collapse navigation"}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg className={`w-4 h-4 transition-transform ${isCollapsed ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Button>
         </div>
@@ -182,42 +277,51 @@ export default function RoleBasedNavigation({ currentUser }: RoleBasedNavigation
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-        {navigation.map((item) => {
-          const isActive = pathname === item.href
-          return (
-            <Link key={item.name} href={item.href}>
-              <div className={`
-                flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-3 py-3 rounded-lg transition-all duration-200 cursor-pointer
-                ${isActive 
-                  ? 'bg-blue-600 text-white shadow-lg' 
-                  : 'text-slate-300 hover:bg-slate-700 hover:text-white'
-                }
-              `}>
-                <div className="flex items-center space-x-3">
-                  <div className={`${isActive ? 'text-white' : 'text-slate-400'}`}>
-                    {item.icon}
+        {navigation.length === 0 ? (
+          <div className="text-gray-400 text-sm p-4">
+            No navigation items available
+          </div>
+        ) : (
+          navigation.map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Link key={item.name} href={item.href}>
+                <div 
+                  className={`
+                    flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-3 py-3 rounded-xl transition-all duration-200 cursor-pointer
+                    ${isActive 
+                      ? 'bg-indigo-600 text-white shadow-lg' 
+                      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                    }
+                  `}
+                  title={isCollapsed ? item.name : undefined}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`${isActive ? 'text-white' : 'text-gray-400'}`}>
+                      {item.icon}
+                    </div>
+                    {!isCollapsed && (
+                      <span className="font-medium text-sm">{item.name}</span>
+                    )}
                   </div>
-                  {!isCollapsed && (
-                    <span className="font-medium text-sm">{item.name}</span>
+                  {!isCollapsed && item.notifications > 0 && (
+                    <Badge className="bg-red-500 text-white text-xs px-2 py-1">
+                      {item.notifications}
+                    </Badge>
                   )}
                 </div>
-                {!isCollapsed && item.notifications > 0 && (
-                  <Badge className="bg-red-500 text-white text-xs px-2 py-1">
-                    {item.notifications}
-                  </Badge>
-                )}
-              </div>
-            </Link>
-          )
-        })}
+              </Link>
+            )
+          })
+        )}
       </nav>
 
       {/* User Profile Section */}
-      <div className="p-4 border-t border-slate-700">
+      <div className="p-4 border-t border-gray-700">
         {!isCollapsed ? (
           <div className="space-y-3">
-            <div className="flex items-center space-x-3 p-3 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+            <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors cursor-pointer">
+              <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-medium text-sm">
                   {currentUser ? getUserInitials(currentUser.name) : 'U'}
                 </span>
@@ -226,7 +330,7 @@ export default function RoleBasedNavigation({ currentUser }: RoleBasedNavigation
                 <div className="text-white text-sm font-medium truncate">
                   {currentUser?.name || 'User'}
                 </div>
-                <div className="text-slate-400 text-xs truncate">
+                <div className="text-gray-400 text-xs truncate">
                   {currentUser?.role?.name || 'Role'}
                 </div>
               </div>
@@ -235,12 +339,17 @@ export default function RoleBasedNavigation({ currentUser }: RoleBasedNavigation
           </div>
         ) : (
           <div className="flex flex-col items-center space-y-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center cursor-pointer">
+            <div 
+              className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center cursor-pointer"
+              title={currentUser ? currentUser.name : 'User Profile'}
+            >
               <span className="text-white font-medium text-sm">
                 {currentUser ? getUserInitials(currentUser.name) : 'U'}
               </span>
             </div>
-            <LogoutButton />
+            <div className="w-full">
+              <LogoutButton />
+            </div>
           </div>
         )}
       </div>

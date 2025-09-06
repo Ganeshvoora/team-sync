@@ -81,15 +81,15 @@ export default function TaskCreateModal({ isOpen, onClose, onTaskCreated, teamMe
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white/10 backdrop-blur-xl border-white/20">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-white text-xl">
+              <CardTitle className="text-gray-900 dark:text-white text-xl">
                 {formData.assigneeId === currentUser.id ? 'Create Self-Assigned Task' : 'Create New Task'}
               </CardTitle>
-              <CardDescription className="text-green-200">
+              <CardDescription className="text-green-500">
                 {formData.assigneeId === currentUser.id 
                   ? 'Create a task for yourself to track your work'
                   : 'Assign a new task to a team member'
@@ -100,7 +100,7 @@ export default function TaskCreateModal({ isOpen, onClose, onTaskCreated, teamMe
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-white hover:bg-white/10"
+              className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               ✕
             </Button>
@@ -116,64 +116,102 @@ export default function TaskCreateModal({ isOpen, onClose, onTaskCreated, teamMe
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-green-200 text-sm font-medium block mb-1">
+                <label className="text-gray-900 dark:text-white text-sm font-medium block mb-1">
                   Task Title *
                 </label>
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="Enter task title"
-                  className="bg-white/10 border-white/20 text-white placeholder-green-300"
+                  className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-green-200 text-sm font-medium block mb-1">
+                <label className="text-gray-900 dark:text-white text-sm font-medium block mb-1">
                   Description
                 </label>
                 <Textarea
                   value={formData.description}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Enter task description"
-                  className="bg-white/10 border-white/20 text-white placeholder-green-300 min-h-[80px]"
+                  className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 min-h-[80px]"
                 />
               </div>
 
               <div>
-                <label className="text-green-200 text-sm font-medium block mb-1">
+                <label className="text-gray-900 dark:text-white text-sm font-medium block mb-1">
                   Assign To *
                 </label>
                 <Select
                   value={formData.assigneeId}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, assigneeId: value }))}
                 >
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                  <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white">
                     <SelectValue placeholder="Select team member" />
                   </SelectTrigger>
                   <SelectContent>
+                    {/* Self assignment option */}
                     <SelectItem key={currentUser.id} value={currentUser.id}>
                       🙋‍♂️ {currentUser.name} (Me) - Self Assignment
                     </SelectItem>
-                    {teamMembers.filter(user => user.id !== currentUser.id).map((user: any) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        👤 {user.name} ({user.role?.name}) 
-                        {user.department?.name && ` - ${user.department.name}`}
-                      </SelectItem>
-                    ))}
+                    
+                    {/* Organize by direct reports */}
+                    {teamMembers.filter(user => 
+                      user.id !== currentUser.id && 
+                      user.managerId === currentUser.id
+                    ).length > 0 && (
+                      <>
+                        <div className="px-2 py-1.5 text-xs text-green-400 font-semibold">
+                          My Direct Reports
+                        </div>
+                        {teamMembers
+                          .filter(user => user.id !== currentUser.id && user.managerId === currentUser.id)
+                          .map((user: any) => (
+                            <SelectItem key={user.id} value={user.id} className="pl-4">
+                              👤 {user.name} ({user.role?.name}) 
+                              {user.department?.name && ` - ${user.department.name}`}
+                            </SelectItem>
+                          ))
+                        }
+                      </>
+                    )}
+                    
+                    {/* Organize by department if not direct reports */}
+                    {teamMembers.filter(user => 
+                      user.id !== currentUser.id && 
+                      user.managerId !== currentUser.id
+                    ).length > 0 && (
+                      <>
+                        <div className="px-2 py-1.5 text-xs text-green-400 font-semibold mt-1">
+                          Other Team Members
+                        </div>
+                        {teamMembers
+                          .filter(user => user.id !== currentUser.id && user.managerId !== currentUser.id)
+                          .map((user: any) => (
+                            <SelectItem key={user.id} value={user.id} className="pl-4">
+                              👤 {user.name} ({user.role?.name})
+                              {user.department?.name && ` - ${user.department.name}`}
+                              {user.manager?.name && ` (Reports to ${user.manager.name})`}
+                            </SelectItem>
+                          ))
+                        }
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <label className="text-green-200 text-sm font-medium block mb-1">
+                <label className="text-gray-900 dark:text-white text-sm font-medium block mb-1">
                   Priority
                 </label>
                 <Select
                   value={formData.priority}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value }))}
                 >
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                  <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -186,26 +224,26 @@ export default function TaskCreateModal({ isOpen, onClose, onTaskCreated, teamMe
               </div>
 
               <div>
-                <label className="text-green-200 text-sm font-medium block mb-1">
+                <label className="text-gray-900 dark:text-white text-sm font-medium block mb-1">
                   Due Date
                 </label>
                 <Input
                   type="date"
                   value={formData.dueDate}
                   onChange={(e) => setFormData(prev => ({ ...prev, dueDate: e.target.value }))}
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="text-green-200 text-sm font-medium block mb-1">
+                <label className="text-gray-900 dark:text-white text-sm font-medium block mb-1">
                   Project (Optional)
                 </label>
                 <Select
                   value={formData.projectId}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, projectId: value }))}
                 >
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                  <SelectTrigger className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white">
                     <SelectValue placeholder="Select project" />
                   </SelectTrigger>
                   <SelectContent>
@@ -223,14 +261,14 @@ export default function TaskCreateModal({ isOpen, onClose, onTaskCreated, teamMe
                   type="button"
                   variant="outline"
                   onClick={onClose}
-                  className="flex-1 border-white/20 text-white hover:bg-white/10"
+                  className="flex-1 border-white/20 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                   disabled={loading}
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white"
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
                   disabled={loading || !formData.title}
                 >
                   {loading ? 'Creating...' : 'Create Task'}

@@ -109,7 +109,7 @@ export default function EnhancedNavigation({ currentUser }: EnhancedNavigationPr
   const isManager = currentUser.role?.name === 'Manager' || currentUser.role?.name === 'CEO'
 
   return (
-    <div className={`${isExpanded ? 'w-64' : 'w-20'} h-screen bg-black/20 backdrop-blur-xl border-r border-white/10 transition-all duration-300 flex flex-col`}>
+    <div className={`${isExpanded ? 'w-64' : 'w-20'} h-screen bg-gray-900 border-r border-gray-700 transition-all duration-300 flex flex-col`}>
       {/* Header */}
       <div className="p-4 border-b border-white/10">
         <div className="flex items-center justify-between">
@@ -123,7 +123,7 @@ export default function EnhancedNavigation({ currentUser }: EnhancedNavigationPr
             variant="ghost"
             size="sm"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-white hover:bg-white/10"
+            className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <svg className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -141,8 +141,8 @@ export default function EnhancedNavigation({ currentUser }: EnhancedNavigationPr
               <div className={`
                 flex items-center ${isExpanded ? 'justify-between' : 'justify-center'} px-3 py-3 rounded-xl transition-all duration-200
                 ${isActive 
-                  ? 'bg-white/20 text-white border border-white/30' 
-                  : 'text-purple-200 hover:bg-white/10 hover:text-white'
+                  ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600' 
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                 }
               `}>
                 <div className="flex items-center space-x-3">
@@ -171,7 +171,7 @@ export default function EnhancedNavigation({ currentUser }: EnhancedNavigationPr
                 className={`flex items-center p-2 text-sm font-medium rounded-md transition-colors ${
                   pathname === item.href
                     ? 'bg-blue-500/20 text-white'
-                    : 'text-indigo-200 hover:bg-white/10 hover:text-white'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                 } ${isExpanded ? 'justify-start' : 'justify-center'}`}
               >
                 {item.icon}
