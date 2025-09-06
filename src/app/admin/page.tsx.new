@@ -5,7 +5,6 @@ import { revalidatePath } from 'next/cache'
 import LogoutButton from '@/components/LogoutButton'
 import UserEditForm from '@/components/UserEditForm'
 import ApplicationCard from '@/components/ApplicationCard'
-import { User, Role, Department, PendingApplication } from './types'
 
 /**
  * Server Action to update a user's role
@@ -129,7 +128,7 @@ export default async function AdminPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
       {/* Decorative background pattern */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDIzOSwgNjgsIDY4LCAwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30 dark:opacity-10"></div>
+      <div className="absolute inset-0 bg-pattern opacity-30 dark:opacity-10"></div>
       
       <div className="relative max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <AdminHeader />
@@ -218,17 +217,7 @@ function AdminHeader() {
 }
 
 // Component for pending applications section
-interface PendingApplicationsSectionProps {
-  applications: PendingApplication[];
-  allRoles: Role[];
-  allUsers: User[];
-}
-
-function PendingApplicationsSection({ 
-  applications, 
-  allRoles, 
-  allUsers 
-}: PendingApplicationsSectionProps) {
+function PendingApplicationsSection({ applications, allRoles, allUsers }) {
   return (
     <div className="px-4 py-6 sm:px-0">
       <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm overflow-hidden shadow-xl rounded-2xl border border-white/20 dark:border-gray-700/20">
@@ -249,7 +238,7 @@ function PendingApplicationsSection({
           </p>
         </div>
         <div className="divide-y divide-gray-100 dark:divide-gray-700">
-          {applications.map((application: PendingApplication) => (
+          {applications.map((application) => (
             <ApplicationCard
               key={application.id}
               application={application}
@@ -264,15 +253,6 @@ function PendingApplicationsSection({
 }
 
 // Component for users management section
-interface UsersManagementSectionProps {
-  allUsers: User[];
-  allRoles: Role[];
-  allDepartments: Department[];
-  updateUserRole: (formData: FormData) => Promise<void>;
-  updateUserManager: (formData: FormData) => Promise<void>;
-  updateUserDepartment: (formData: FormData) => Promise<void>;
-}
-
 function UsersManagementSection({ 
   allUsers, 
   allRoles, 
@@ -280,7 +260,7 @@ function UsersManagementSection({
   updateUserRole, 
   updateUserManager, 
   updateUserDepartment 
-}: UsersManagementSectionProps) {
+}) {
   return (
     <div className="px-4 py-6 sm:px-0">
       <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm overflow-hidden shadow-xl rounded-2xl border border-white/20 dark:border-gray-700/20">
@@ -325,14 +305,14 @@ function UsersManagementSection({
               </tr>
             </thead>
             <tbody className="bg-white/50 dark:bg-gray-800/50 divide-y divide-gray-100 dark:divide-gray-700">
-              {allUsers.map((user: User) => (
+              {allUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-white/80 dark:hover:bg-gray-700/80 transition-colors duration-150">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
                         <div className="h-10 w-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
                           <span className="text-white font-medium text-sm">
-                            {user.name.split(' ').map((n: string) => n[0]).join('')}
+                            {user.name.split(' ').map(n => n[0]).join('')}
                           </span>
                         </div>
                       </div>
@@ -392,3 +372,10 @@ function UsersManagementSection({
     </div>
   )
 }
+
+// Add this to your CSS file or inline styles in a style tag
+const styles = `
+.bg-pattern {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDIzOSwgNjgsIDY4LCAwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+');
+}
+`;
