@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import ProjectCreateModal from "./ProjectCreateModal"
+import AddResourceModal from "./AddResourceModal"
 import { useTheme } from '@/contexts/ThemeContext'
 import ThemeToggle from './ThemeToggle'
 
@@ -34,6 +35,7 @@ export default function ProjectsClient({ currentUser, projects, canCreateProject
   const [filterStatus, setFilterStatus] = useState('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [showAddResourceForm, setShowAddResourceForm] = useState(false)
 
   // Filter projects based on current filters
   const filteredProjects = projects.filter(project => {
@@ -62,6 +64,10 @@ export default function ProjectsClient({ currentUser, projects, canCreateProject
 
   const handleProjectCreated = () => {
     window.location.reload() // Refresh to show new project
+  }
+
+  const handleResourceAdded = () => {
+    window.location.reload() // Refresh to show new resource
   }
 
   return (
@@ -238,6 +244,12 @@ export default function ProjectsClient({ currentUser, projects, canCreateProject
                       >
                         Timeline
                       </TabsTrigger>
+                      <TabsTrigger
+                        value="resources"
+                        className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-600 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white text-gray-600 dark:text-gray-300"
+                      >
+                        Resources
+                      </TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="overview" className="space-y-6">
@@ -364,6 +376,17 @@ export default function ProjectsClient({ currentUser, projects, canCreateProject
                         <p>Project timeline feature coming soon</p>
                       </div>
                     </TabsContent>
+                    <TabsContent value="resources" className="space-y-4">
+                      <div className="flex justify-end">
+                        <Button onClick={() => setShowAddResourceForm(true)}>Add Resource</Button>
+                      </div>
+                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        <svg className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.536a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                        <p>Resource management feature coming soon</p>
+                      </div>
+                    </TabsContent>
                   </Tabs>
                 </CardContent>
               </Card>
@@ -388,6 +411,15 @@ export default function ProjectsClient({ currentUser, projects, canCreateProject
           onClose={() => setShowCreateForm(false)}
           onProjectCreated={handleProjectCreated}
         />
+
+        {selectedProject && (
+          <AddResourceModal
+            isOpen={showAddResourceForm}
+            onClose={() => setShowAddResourceForm(false)}
+            onResourceAdded={handleResourceAdded}
+            projectId={selectedProject.id}
+          />
+        )}
       </div>
     </div>
   )

@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import NotificationBell from './NotificationBell'
+import { ThemeToggle } from './ThemeToggle'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -45,6 +46,7 @@ export default function AdminLayout({ children, title, subtitle }: AdminLayoutPr
                 </Link>
               </nav>
               <NotificationBell />
+              <ThemeToggle />
             </div>
           </div>
         </div>

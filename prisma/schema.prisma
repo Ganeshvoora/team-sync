@@ -93,6 +93,7 @@ model User {
   // Invitation relations
   invitationsSent   Invitation[]  @relation("InvitationInviter")
   invitationsManaged Invitation[] @relation("InvitationManager")
+  addedResources    Resource[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -115,6 +116,7 @@ model Project {
   
   tasks       Task[]
   timeEntries TimeEntry[]
+  resources   Resource[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -251,6 +253,20 @@ model Invitation {
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// New model for storing resource links
+model Resource {
+  id        String   @id @default(cuid())
+  title     String
+  url       String   // This is where we store the link
+  createdAt DateTime @default(now())
+
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  addedById String
+  addedBy   User     @relation(fields: [addedById], references: [id])
 }
 
 enum UserStatus {
