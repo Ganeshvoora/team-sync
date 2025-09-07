@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import AdminLayout from '@/components/AdminLayout'
 import LogoutButton from '@/components/LogoutButton'
 import UserEditForm from '@/components/UserEditForm'
 import ApplicationCard from '@/components/ApplicationCard'
@@ -128,33 +129,26 @@ export default async function AdminPage() {
     }))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
-      {/* Decorative background pattern */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDIzOSwgNjgsIDY4LCAwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30 dark:opacity-10"></div>
-      
-      <div className="relative max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <AdminHeader />
-        
-        {/* Pending Applications Section */}
-        {pendingApplications.length > 0 && (
-          <PendingApplicationsSection 
-            applications={pendingApplications}
-            allRoles={allRoles}
-            allUsers={allUsers}
-          />
-        )}
-
-        {/* Users Management Section */}
-        <UsersManagementSection 
-          allUsers={allUsers}
+    <AdminLayout title="Admin Dashboard" subtitle="Manage users and applications">
+      {/* Pending Applications Section */}
+      {pendingApplications.length > 0 && (
+        <PendingApplicationsSection
+          applications={pendingApplications}
           allRoles={allRoles}
-          allDepartments={allDepartments}
-          updateUserRole={updateUserRole}
-          updateUserManager={updateUserManager}
-          updateUserDepartment={updateUserDepartment}
+          allUsers={allUsers}
         />
-      </div>
-    </div>
+      )}
+
+      {/* Users Management Section */}
+      <UsersManagementSection
+        allUsers={allUsers}
+        allRoles={allRoles}
+        allDepartments={allDepartments}
+        updateUserRole={updateUserRole}
+        updateUserManager={updateUserManager}
+        updateUserDepartment={updateUserDepartment}
+      />
+    </AdminLayout>
   )
 }
 
@@ -177,39 +171,6 @@ function AccessDeniedView() {
             className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             Admin Login
-          </Link>
-          <LogoutButton />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Header component for the admin page
-function AdminHeader() {
-  return (
-    <div className="px-4 py-6 sm:px-0">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-red-600 to-orange-600 rounded-xl shadow-lg">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent dark:from-white dark:to-gray-300">Admin Portal</h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300">Manage team hierarchy and user applications</p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-4">
-          <Link 
-            href="/dashboard" 
-            className="inline-flex items-center px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-sm font-medium rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            Dashboard
           </Link>
           <LogoutButton />
         </div>

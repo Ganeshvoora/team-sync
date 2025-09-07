@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import PageHeader from '@/components/PageHeader'
+import AdminLayout from '@/components/AdminLayout'
 import { User, Role, PendingApplication } from '../types'
 import { AccessDeniedView, NoApplicationsView, PendingApplicationsSection } from './components'
 
@@ -121,41 +121,20 @@ export default async function AdminApprovalsPage() {
     })) as User[];
 
   return (
-    <div className="min-h-screen p-4 bg-gradient-to-br from-slate-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
-      {/* Decorative background pattern */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDIzOSwgNjgsIDY4LCAwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30 dark:opacity-10"></div>
-      
-      <div className="relative max-w-7xl mx-auto py-6">
-        <PageHeader title="User Approvals" subtitle="Admin Panel" />
-        
-        {/* Main content */}
-        <div className="mt-8">
-          {pendingApplications.length > 0 ? (
-            <PendingApplicationsSection 
-              applications={pendingApplications as PendingApplication[]}
-              allRoles={allRoles as Role[]}
-              allUsers={typedUsers}
-              approveApplication={approveApplication}
-              rejectApplication={rejectApplication}
-            />
-          ) : (
-            <NoApplicationsView />
-          )}
-        </div>
-        
-        {/* Navigation back to admin dashboard */}
-        <div className="mt-10 flex justify-end">
-          <a 
-            href="/admin" 
-            className="inline-flex items-center px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-sm font-medium rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Admin Dashboard
-          </a>
-        </div>
+    <AdminLayout title="User Approvals" subtitle="Admin Panel">
+      <div className="mt-8">
+        {pendingApplications.length > 0 ? (
+          <PendingApplicationsSection
+            applications={pendingApplications as PendingApplication[]}
+            allRoles={allRoles as Role[]}
+            allUsers={typedUsers}
+            approveApplication={approveApplication}
+            rejectApplication={rejectApplication}
+          />
+        ) : (
+          <NoApplicationsView />
+        )}
       </div>
-    </div>
+    </AdminLayout>
   )
 }
