@@ -43,7 +43,6 @@ export default function DashboardClient({
               </p>
             </div>
             <div className="flex items-center space-x-4">
-              <ThemeToggle />
               <Link
                 href="/profile"
                 className="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-4 py-2 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-all duration-200"
