@@ -174,19 +174,33 @@ export default function OrgChartPage() {
     setEdges(layoutedEdges)
   }, [layoutedNodes, layoutedEdges, setNodes, setEdges])
 
-  // Load org chart data
+  // Load org chart data with retry mechanism and progress feedback
   useEffect(() => {
+    // Track retry attempts
+    let retryCount = 0;
+    const maxRetries = 2;
+    
     const loadOrgData = async () => {
       try {
         setLoading(true)
         setError(null)
         
-        // Add timeout to prevent infinite loading
+        // Show retry attempt message if applicable
+        if (retryCount > 0) {
+          console.log(`Retry attempt ${retryCount} of ${maxRetries}`)
+        }
+        
+        // Extended timeout with retry mechanism
         const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 30000) // 15 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 60000) // Increase to 60 second timeout
         
         const response = await fetch('/api/org-chart', {
-          signal: controller.signal
+          signal: controller.signal,
+          // Add cache control to prevent cached responses
+          headers: {
+            'Cache-Control': 'no-cache, no-store',
+            'Pragma': 'no-cache'
+          }
         })
         
         clearTimeout(timeoutId)
@@ -222,8 +236,13 @@ export default function OrgChartPage() {
             targetExists: nodeIds.includes(edge.target)
           }))
           
-          console.log('Node IDs:', nodeIds)
-          console.log('Edge Connections:', edgeConnections)
+          // Only log if there are issues with connections
+          const invalidEdges = edgeConnections.filter((edge: {sourceExists: boolean, targetExists: boolean}) => 
+            !edge.sourceExists || !edge.targetExists
+          )
+          if (invalidEdges.length > 0) {
+            console.warn('Invalid edge connections:', invalidEdges)
+          }
           
           // Store raw data for layout processing
           setRawNodes(data.nodes)
@@ -235,7 +254,18 @@ export default function OrgChartPage() {
         }
       } catch (error: any) {
         console.error('Error loading org chart data:', error)
-        setError(error.name === 'AbortError' ? 'Request timeout - please try again' : 'Failed to load organization chart')
+        
+        // Handle timeout with retry logic
+        if (error.name === 'AbortError' && retryCount < maxRetries) {
+          retryCount++;
+          console.log(`Request timed out. Retrying (${retryCount}/${maxRetries})...`);
+          return loadOrgData(); // Retry the request
+        }
+        
+        setError(error.name === 'AbortError' 
+          ? `Request timeout - server might be under heavy load. Please try again later.` 
+          : 'Failed to load organization chart')
+        
         // Set empty data to stop loading state
         setRawNodes([])
         setRawEdges([])
@@ -290,10 +320,18 @@ export default function OrgChartPage() {
       <div className="p-4">
         <PageHeader title="Organization Chart" subtitle="Interactive View" />
         <div className="flex items-center justify-center h-64">
-          <div className="text-center">
+          <div className="text-center max-w-md">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-white mx-auto mb-4"></div>
             <div className="text-gray-900 dark:text-white text-xl mb-2">Loading organization chart...</div>
-            <div className="text-blue-600 dark:text-blue-300 text-sm">This should take just a moment</div>
+            <div className="text-blue-600 dark:text-blue-300 text-sm mb-4">
+              This may take up to a minute for large organizations
+            </div>
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg p-3 mt-4">
+              <p className="text-blue-800 dark:text-blue-200 text-sm">
+                The system is retrieving and calculating your organization's structure. For large organizations, 
+                this might take some time as we process hierarchical relationships and access permissions.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -312,6 +350,20 @@ export default function OrgChartPage() {
           </div>
           <h3 className="text-gray-900 dark:text-white text-xl font-semibold mb-2">Unable to Load Organization Chart</h3>
           <p className="text-gray-600 dark:text-gray-300 mb-6">{error}</p>
+          
+          {/* Additional guidance based on the specific error */}
+          {error.includes('timeout') && (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-800 rounded-lg p-4 mb-6 max-w-md mx-auto">
+              <h4 className="text-yellow-800 dark:text-yellow-200 text-sm font-medium mb-2">Possible Solutions:</h4>
+              <ul className="text-sm text-yellow-700 dark:text-yellow-300 text-left list-disc pl-5 space-y-1">
+                <li>The server might be experiencing high traffic - try again in a few minutes</li>
+                <li>Your organization might be very large - this can take longer to process</li>
+                <li>Check your internet connection</li>
+                <li>If the problem persists, contact your administrator</li>
+              </ul>
+            </div>
+          )}
+          
           {error.includes('log in') ? (
             <a
               href="/login"

@@ -35,40 +35,63 @@ export async function GET(request: NextRequest) {
 
     console.log('Current user found:', currentUser.name)
 
-    // Get all visible users based on "Fog of War" rules and admin privileges
+    // Optimized function to get all visible users based on "Fog of War" rules
     const getVisibleUsers = async (userId: string, userRole: any) => {
+      console.log('Getting visible users for', userId)
       const visibleUserIds = new Set<string>()
       
       // If user is Admin or CEO, they can see everyone in the organization
-      // This is the key part for admin/CEO role-based access control
       if (userRole?.name === 'ADMIN' || userRole?.name === 'CEO') {
         console.log('Admin/CEO detected - returning all active users')
-        const allUsers = await prisma.user.findMany({
-          where: { status: 'ACTIVE' },
-          select: { id: true }
-        })
-        return allUsers.map(u => u.id)
+        // Use more efficient query with pagination
+        const batchSize = 1000
+        let lastId = ''
+        let hasMore = true
+        
+        while (hasMore) {
+          const batch = await prisma.user.findMany({
+            where: { 
+              status: 'ACTIVE',
+              ...(lastId ? { id: { gt: lastId } } : {})
+            },
+            select: { id: true },
+            orderBy: { id: 'asc' },
+            take: batchSize
+          })
+          
+          if (batch.length === 0 || batch.length < batchSize) {
+            hasMore = false
+          } else {
+            lastId = batch[batch.length - 1].id
+          }
+          
+          batch.forEach(user => visibleUserIds.add(user.id))
+        }
+        
+        console.log(`Found ${visibleUserIds.size} visible users (admin view)`)
+        return Array.from(visibleUserIds)
       }
       
       // Add current user
       visibleUserIds.add(userId)
       
-      // Get the current user's complete hierarchy path up to CEO
-      const getManagerChain = async (managerId: string | null): Promise<string[]> => {
-        if (!managerId) return []
+      // Get manager chain efficiently (all the way up to CEO)
+      let currentManagerId = currentUser.managerId
+      const processedManagers = new Set<string>()
+      
+      while (currentManagerId && !processedManagers.has(currentManagerId)) {
+        processedManagers.add(currentManagerId)
+        visibleUserIds.add(currentManagerId)
+        
         const manager = await prisma.user.findUnique({
-          where: { id: managerId },
-          select: { id: true, managerId: true }
+          where: { id: currentManagerId },
+          select: { managerId: true }
         })
-        if (!manager) return []
-        return [manager.id, ...await getManagerChain(manager.managerId)]
+        
+        currentManagerId = manager?.managerId || null
       }
       
-      // Add all managers up the chain (See Up)
-      const managerChain = await getManagerChain(currentUser.managerId)
-      managerChain.forEach(id => visibleUserIds.add(id))
-      
-      // Get all peers (users with the same manager) (See Across)
+      // Get peers efficiently (users with same manager)
       if (currentUser.managerId) {
         const peers = await prisma.user.findMany({
           where: {
@@ -77,32 +100,43 @@ export async function GET(request: NextRequest) {
           },
           select: { id: true }
         })
+        
         peers.forEach(peer => visibleUserIds.add(peer.id))
       }
       
-      // Get all downstream users (See Down - Own Team Only)
-      const getAllDownstream = async (managerId: string): Promise<string[]> => {
-        const directReports = await prisma.user.findMany({
-          where: { 
-            managerId,
-            status: 'ACTIVE' 
-          },
-          select: { id: true }
-        })
-        
-        let allDownstream = directReports.map(u => u.id)
-        
-        for (const report of directReports) {
-          const subReports = await getAllDownstream(report.id)
-          allDownstream = [...allDownstream, ...subReports]
+      // Get downstream hierarchy using a more efficient approach
+      // This builds a complete map of the hierarchy to avoid recursive DB calls
+      const managersToDirectReports: Record<string, string[]> = {}
+      
+      // Get all direct report relationships in one query
+      const allDirectReports = await prisma.user.findMany({
+        where: { status: 'ACTIVE' },
+        select: { id: true, managerId: true }
+      })
+      
+      // Build the hierarchy map
+      for (const user of allDirectReports) {
+        if (user.managerId) {
+          if (!managersToDirectReports[user.managerId]) {
+            managersToDirectReports[user.managerId] = []
+          }
+          managersToDirectReports[user.managerId].push(user.id)
         }
-        
-        return allDownstream
       }
       
-      const downstreamUsers = await getAllDownstream(currentUser.id)
-      downstreamUsers.forEach(id => visibleUserIds.add(id))
+      // Function to traverse the hierarchy without database calls
+      function traverseHierarchy(managerId: string) {
+        const directReports = managersToDirectReports[managerId] || []
+        for (const reportId of directReports) {
+          visibleUserIds.add(reportId)
+          traverseHierarchy(reportId)
+        }
+      }
       
+      // Start traversal from current user
+      traverseHierarchy(userId)
+      
+      console.log(`Found ${visibleUserIds.size} visible users for ${currentUser.name}`)
       return Array.from(visibleUserIds)
     }
 
@@ -139,29 +173,41 @@ export async function GET(request: NextRequest) {
       ]
     })
 
-    // Helper function to check if a user is in the downstream hierarchy
-    async function isUserInDownstreamHierarchy(managerId: string, targetUserId: string): Promise<boolean> {
-      // If the manager ID matches the target user ID, return false (a user is not in their own hierarchy)
-      if (managerId === targetUserId) {
-        return false
+    // Optimized approach to build a complete hierarchy map in one go
+    async function buildHierarchyMap(): Promise<Record<string, string[]>> {
+      console.log('Building hierarchy map for all users...')
+      const hierarchyMap: Record<string, string[]> = {}
+      
+      // Initialize each user with an empty array
+      for (const user of users) {
+        hierarchyMap[user.id] = []
       }
       
-      const directReports = await prisma.user.findMany({
-        where: { managerId },
-        select: { id: true }
-      })
-      
-      if (directReports.some(report => report.id === targetUserId)) {
-        return true
-      }
-      
-      for (const report of directReports) {
-        if (await isUserInDownstreamHierarchy(report.id, targetUserId)) {
-          return true
+      // For each user, add their direct reports to their hierarchy
+      for (const user of users) {
+        if (user.managerId && hierarchyMap[user.managerId]) {
+          hierarchyMap[user.managerId].push(user.id)
         }
       }
       
-      return false
+      console.log('Initial hierarchy map built with direct reports')
+      return hierarchyMap
+    }
+    
+    // Function to get all downstream users for a manager
+    function getAllDownstreamUsers(hierarchyMap: Record<string, string[]>, managerId: string): Set<string> {
+      const result = new Set<string>()
+      
+      function traverse(userId: string) {
+        const directReports = hierarchyMap[userId] || []
+        for (const reportId of directReports) {
+          result.add(reportId)
+          traverse(reportId)
+        }
+      }
+      
+      traverse(managerId)
+      return result
     }
 
     // Check downstream relationships for each user
@@ -169,7 +215,6 @@ export async function GET(request: NextRequest) {
     const isAdminOrCEO = currentUser.role?.name === 'ADMIN' || currentUser.role?.name === 'CEO'
     
     // If admin/CEO, all users are considered in their downstream for management purposes
-    // This allows admins to "manage" everyone in the organization chart, even without direct reports
     if (isAdminOrCEO) {
       console.log('Admin/CEO access - setting all users as manageable')
       for (const user of users) {
@@ -177,11 +222,16 @@ export async function GET(request: NextRequest) {
         downstreamMap[user.id] = user.id !== currentUser.id
       }
     } else {
-      // For regular managers, calculate actual downstream hierarchy
+      // For regular managers, use the optimized hierarchy calculation
       console.log('Regular user - calculating hierarchy for', currentUser.name)
+      const hierarchyMap = await buildHierarchyMap()
+      const downstreamUsers = getAllDownstreamUsers(hierarchyMap, currentUser.id)
+      
       for (const user of users) {
-        downstreamMap[user.id] = await isUserInDownstreamHierarchy(currentUser.id, user.id)
+        downstreamMap[user.id] = downstreamUsers.has(user.id)
       }
+      
+      console.log(`Found ${downstreamUsers.size} downstream users for ${currentUser.name}`)
     }
 
     // Transform users into org chart nodes and edges
